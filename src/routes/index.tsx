@@ -1,0 +1,143 @@
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { AppLayout } from './layout'
+import { ProtectedRoute } from './protectedRoute'
+import { LoginPage } from './pages/LoginPage'
+import { DashboardPage } from './pages/DashboardPage'
+import { DocumentManagerPage } from './pages/documents/DocumentManagerPage'
+import {
+  InventoryListPage,
+  ItemDetailPage,
+  CheckoutPage,
+  CheckoutHistoryPage,
+} from './pages/inventory'
+import {
+  TrackingDashboardPage,
+  RoomsPage,
+  DevicesPage,
+  BleTagsPage,
+} from './pages/ble'
+import { UsersPage, AdminPage } from './pages/admin'
+import { AuditLogPage } from './pages/audit'
+import { ReportsPage } from './pages/reports'
+
+export const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/',
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
+      {
+        path: 'documents',
+        element: <DocumentManagerPage />,
+      },
+      {
+        path: 'inventory',
+        children: [
+          {
+            index: true,
+            element: <InventoryListPage />,
+          },
+          {
+            path: ':id',
+            element: <ItemDetailPage />,
+          },
+          {
+            path: 'checkout',
+            element: (
+              <ProtectedRoute allowedRoles={['admin', 'staff', 'student']}>
+                <CheckoutPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'checkouts',
+            element: (
+              <ProtectedRoute allowedRoles={['admin', 'staff', 'student']}>
+                <CheckoutHistoryPage />
+              </ProtectedRoute>
+            ),
+          },
+        ],
+      },
+      {
+        path: 'ble-tracking',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <TrackingDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/rooms',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <RoomsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/devices',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <DevicesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/tags',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <BleTagsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'audit-logs',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'staff']}>
+            <AuditLogPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'reports',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ReportsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/users',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <UsersPage />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
+  },
+])
