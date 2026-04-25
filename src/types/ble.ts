@@ -85,6 +85,8 @@ export interface LocationHistoryEntry {
   detected_at: string
   device_id: string
   device_name: string
+  rssi?: number | null
+  has_conflict?: boolean
 }
 
 export interface ItemPresenceDetail {

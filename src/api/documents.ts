@@ -42,6 +42,14 @@ export const documentsApi = {
   getDocumentActivity: (id: string) =>
     api.get<{ activity: ActivityLogEntry[] }>(`/documents/${id}/activity`).then(r => ({ data: r.data.activity })),
 
+  searchDocuments: (q: string) =>
+    api.get<{ documents: DocumentFile[] }>(`/documents/search`, { params: { q } }).then(r => ({ data: r.data.documents })),
+
+  deleteDocument: (id: string) => api.delete(`/documents/${id}`),
+
+  renameDocument: (id: string, name: string) =>
+    api.patch<{ document: DocumentFile }>(`/documents/${id}`, { name }).then(r => ({ data: r.data.document })),
+
   // Permissions
   getDocumentPermissions: (id: string) =>
     api.get<{ permissions: Permission[] }>(`/documents/${id}/permissions`).then(r => ({ data: r.data.permissions })),

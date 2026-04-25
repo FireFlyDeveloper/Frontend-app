@@ -79,3 +79,44 @@ export function useDocumentActivity(documentId: string | null) {
     enabled: !!documentId,
   })
 }
+
+export function useSearchDocuments(q: string) {
+  return useQuery({
+    queryKey: ['documents-search', q],
+    queryFn: () => documentsApi.searchDocuments(q).then((res) => res.data),
+    enabled: q.trim().length > 0,
+  })
+}
+
+export function useDeleteDocument() {
+  const queryClient = useQueryClient()
+  const addToast = useUIStore((state) => state.addToast)
+
+  return useMutation({
+    mutationFn: (id: string) => documentsApi.deleteDocument(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      addToast({ message: 'Document deleted', type: 'success' })
+    },
+    onError: () => {
+      addToast({ message: 'Failed to delete document', type: 'error' })
+    },
+  })
+}
+
+export function useRenameDocument() {
+  const queryClient = useQueryClient()
+  const addToast = useUIStore((state) => state.addToast)
+
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      documentsApi.renameDocument(id, name).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      addToast({ message: 'Document renamed', type: 'success' })
+    },
+    onError: () => {
+      addToast({ message: 'Failed to rename document', type: 'error' })
+    },
+  })
+}

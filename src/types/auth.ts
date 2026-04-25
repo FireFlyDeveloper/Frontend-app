@@ -5,6 +5,7 @@ export interface User {
   roles: string[];
   is_active: boolean;
   created_at: string;
+  can_checkout_quantifiable: boolean;
 }
 
 export interface LoginCredentials {

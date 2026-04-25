@@ -15,7 +15,7 @@ export function CheckoutPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const addToast = useUIStore((state) => state.addToast)
-  const canCheckout = user?.roles?.includes('admin') || user?.roles?.includes('staff')
+  const canCheckout = user?.can_checkout_quantifiable === true
 
   const [cart, setCart] = useState<CartItem[]>([])
 

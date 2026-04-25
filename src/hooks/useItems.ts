@@ -3,7 +3,7 @@ import { inventoryApi } from '@/api/inventory'
 import { useUIStore } from '@/stores/uiStore'
 import { CreateItemInput, UpdateItemInput } from '@/types/inventory'
 
-export function useItems(filters?: { type?: string; category?: string; status?: string; search?: string }) {
+export function useItems(filters?: { type?: string; category?: string; status?: string; search?: string; room?: string }) {
   return useQuery({
     queryKey: ['items', filters],
     queryFn: () => inventoryApi.getItems(filters).then((res) => res.data.items),

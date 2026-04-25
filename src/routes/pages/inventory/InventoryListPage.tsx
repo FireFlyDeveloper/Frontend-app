@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/authStore'
 import { useItems, useCreateItem } from '@/hooks/useItems'
+import { useRooms } from '@/hooks/useBLE'
 import { CreateItemInput, UpdateItemInput } from '@/types/inventory'
 
 export function InventoryListPage() {
@@ -20,14 +21,17 @@ export function InventoryListPage() {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [roomFilter, setRoomFilter] = useState('')
   const [showForm, setShowForm] = useState(false)
 
   const { data: items, isLoading } = useItems({
     search: search || undefined,
     type: typeFilter || undefined,
     status: statusFilter || undefined,
+    room: roomFilter || undefined,
   })
 
+  const { data: rooms } = useRooms()
   const createItem = useCreateItem()
 
   const handleCreate = (data: CreateItemInput | UpdateItemInput) => {
@@ -35,6 +39,9 @@ export function InventoryListPage() {
       onSuccess: () => setShowForm(false),
     })
   }
+
+  // Show room filter when type is trackable or no type selected
+  const showRoomFilter = typeFilter === 'trackable' || typeFilter === ''
 
   return (
     <PageShell
@@ -60,8 +67,8 @@ export function InventoryListPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
-          <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+        <div className="flex gap-2 flex-wrap">
+          <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setRoomFilter('') }}>
             <option value="">All Types</option>
             <option value="quantifiable">Quantifiable</option>
             <option value="trackable">Trackable</option>
@@ -72,6 +79,14 @@ export function InventoryListPage() {
             <option value="inactive">Inactive</option>
             <option value="maintenance">Maintenance</option>
           </Select>
+          {showRoomFilter && rooms && rooms.length > 0 && (
+            <Select value={roomFilter} onChange={(e) => setRoomFilter(e.target.value)}>
+              <option value="">All Rooms</option>
+              {rooms.map((room) => (
+                <option key={room.id} value={room.id}>{room.name}</option>
+              ))}
+            </Select>
+          )}
         </div>
       </div>
 

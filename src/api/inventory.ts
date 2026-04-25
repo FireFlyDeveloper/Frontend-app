@@ -16,7 +16,7 @@ import {
 
 export const inventoryApi = {
   // Items
-  getItems: (params?: { type?: string; category?: string; status?: string; search?: string }) =>
+  getItems: (params?: { type?: string; category?: string; status?: string; search?: string; room?: string }) =>
     api.get<{ items: Item[] }>('/items', { params }),
 
   getItem: (id: string) => api.get<{ item: Item }>(`/items/${id}`),
@@ -35,7 +35,7 @@ export const inventoryApi = {
     api.post<{ lot: ItemLot }>(`/items/${itemId}/lots`, data),
 
   // Checkout
-  getCheckouts: (params?: { status?: string; user_id?: string }) =>
+  getCheckouts: (params?: { status?: string; user_id?: string; item_id?: string }) =>
     api.get<{ transactions: CheckoutTransaction[] }>('/checkout', { params }),
 
   getCheckout: (id: string) => api.get<CheckoutDetailResult>(`/checkout/${id}`),

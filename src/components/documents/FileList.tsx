@@ -1,4 +1,4 @@
-import { FileText, Download, Clock, Loader2 } from 'lucide-react'
+import { FileText, Download, Clock, Loader2, Pencil, Trash2, Shield } from 'lucide-react'
 import { DocumentFile } from '@/types/document'
 import { formatFileSize, formatDate } from '@/lib/utils'
 import { useDownloadDocument } from '@/hooks/useDocuments'
@@ -10,9 +10,12 @@ interface FileListProps {
   isLoading: boolean
   selectedDocumentId: string | null
   onSelectDocument: (id: string | null) => void
+  onRename?: (doc: DocumentFile) => void
+  onDelete?: (doc: DocumentFile) => void
+  onManagePermissions?: (doc: DocumentFile) => void
 }
 
-export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument }: FileListProps) {
+export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument, onRename, onDelete, onManagePermissions }: FileListProps) {
   const download = useDownloadDocument()
 
   if (isLoading) {
@@ -59,22 +62,63 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
               <span>v{doc.version}</span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0"
-            onClick={(e) => {
-              e.stopPropagation()
-              download.mutate({ id: doc.id, filename: doc.name })
-            }}
-            disabled={download.isPending}
-          >
-            {download.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation()
+                download.mutate({ id: doc.id, filename: doc.name })
+              }}
+              disabled={download.isPending}
+            >
+              {download.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+            </Button>
+            {selectedDocumentId === doc.id && onRename && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRename(doc)
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
             )}
-          </Button>
+            {selectedDocumentId === doc.id && onManagePermissions && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onManagePermissions(doc)
+                }}
+              >
+                <Shield className="h-4 w-4" />
+              </Button>
+            )}
+            {selectedDocumentId === doc.id && onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(doc)
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       ))}
     </div>

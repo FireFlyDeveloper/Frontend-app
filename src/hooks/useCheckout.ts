@@ -3,7 +3,7 @@ import { inventoryApi } from '@/api/inventory'
 import { useUIStore } from '@/stores/uiStore'
 import { CheckoutInput, ReturnInput } from '@/types/inventory'
 
-export function useCheckouts(filters?: { status?: string; user_id?: string }) {
+export function useCheckouts(filters?: { status?: string; user_id?: string; item_id?: string }) {
   return useQuery({
     queryKey: ['checkouts', filters],
     queryFn: () => inventoryApi.getCheckouts(filters).then((res) => res.data.transactions),
