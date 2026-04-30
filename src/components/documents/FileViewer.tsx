@@ -125,7 +125,7 @@ export function FileViewer({ open, onOpenChange, document: doc }: FileViewerProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-[95vw] h-[90vh] p-0 flex flex-col overflow-hidden">
+      <DialogContent className="max-w-none w-[98vw] h-[98vh] p-0 flex flex-col overflow-hidden border-0 rounded-lg">
         <DialogHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between">
           <DialogTitle className="text-base truncate max-w-[70%]">
             {doc?.name || 'File Viewer'}
