@@ -98,9 +98,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
           }
           case 'device_offline': {
             const p = msg.payload as DeviceOfflinePayload
+            if (!p?.device_id) break
             addAlert({
               type: 'device_offline',
-              message: `Device ${p.device_name} went offline`,
+              message: `Device ${p.device_name || p.device_id} went offline`,
               payload: p,
               timestamp: p.timestamp,
             })
@@ -108,6 +109,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
           }
           case 'unregistered_tag': {
             const p = msg.payload as UnregisteredTagPayload
+            if (!p?.tag_id) break
             addAlert({
               type: 'unregistered',
               message: `Unregistered tag detected: ${p.tag_id}`,

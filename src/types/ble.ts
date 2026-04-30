@@ -121,36 +121,36 @@ export interface WSMessage {
 
 export interface ItemLocationPayload {
   item_id: string
-  item_name: string
+  item_name?: string
   room_id: string
-  room_name: string
+  room_name?: string
   device_id: string
-  device_name: string
+  device_name?: string
   timestamp: string
 }
 
 export interface ItemStatusPayload {
   item_id: string
-  item_name: string
+  item_name?: string
   status: PresenceStatus
-  previous_status: PresenceStatus
+  previous_status?: PresenceStatus
   timestamp: string
 }
 
 export interface MissingAlertPayload {
   item_id: string
-  item_name: string
+  item_name?: string
   last_room_id: string | null
-  last_room_name: string | null
+  last_room_name?: string | null
   last_seen: string | null
   timestamp: string
 }
 
 export interface DeviceOfflinePayload {
   device_id: string
-  device_name: string
+  device_name?: string
   room_id: string | null
-  room_name: string | null
+  room_name?: string | null
   last_seen: string | null
   timestamp: string
 }
@@ -158,9 +158,9 @@ export interface DeviceOfflinePayload {
 export interface UnregisteredTagPayload {
   tag_id: string
   device_id: string
-  device_name: string
+  device_name?: string
   room_id: string | null
-  room_name: string | null
+  room_name?: string | null
   rssi: number | null
   timestamp: string
 }
