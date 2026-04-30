@@ -1,7 +1,7 @@
 import { PageShell } from '@/components/layout/PageShell'
 import { useAuthStore } from '@/stores/authStore'
 import { useDashboardStats, useRecentActivity, useRoomStatus } from '@/hooks/useDashboard'
-import { StatCard, QuickActions, ActivityFeed, RoomStatusCard } from '@/components/dashboard'
+import { StatCard, ActivityFeed, RoomStatusCard } from '@/components/dashboard'
 import {
   Package,
   FileText,
@@ -75,9 +75,6 @@ export function DashboardPage() {
           isLoading={statsLoading}
         />
       </div>
-
-      {/* Quick Actions */}
-      <QuickActions />
 
       {/* Activity + Room Status */}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
