@@ -194,6 +194,9 @@ export function ItemDetailPage() {
                   {item.category && (
                     <span className="text-xs text-muted-foreground">{item.category}</span>
                   )}
+                  {item.sku && (
+                    <span className="text-xs font-mono text-primary">SKU: {item.sku}</span>
+                  )}
                 </div>
               </div>
             </div>

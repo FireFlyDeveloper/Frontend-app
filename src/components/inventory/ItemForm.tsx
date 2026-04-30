@@ -16,6 +16,7 @@ interface ItemFormProps {
 
 export function ItemForm({ open, onOpenChange, onSubmit, item, isLoading }: ItemFormProps) {
   const [name, setName] = useState(item?.name || '')
+  const [sku, setSku] = useState(item?.sku || '')
   const [category, setCategory] = useState(item?.category || '')
   const [description, setDescription] = useState(item?.description || '')
   const [itemType, setItemType] = useState<ItemType>(item?.item_type || 'quantifiable')
@@ -28,8 +29,8 @@ export function ItemForm({ open, onOpenChange, onSubmit, item, isLoading }: Item
     if (!name.trim()) return
 
     const data = isEdit
-      ? { name: name.trim(), category: category.trim() || undefined, description: description.trim() || undefined, status }
-      : { item_type: itemType, name: name.trim(), category: category.trim() || undefined, description: description.trim() || undefined, status }
+      ? { name: name.trim(), sku: sku.trim() || null, category: category.trim() || undefined, description: description.trim() || undefined, status }
+      : { item_type: itemType, name: name.trim(), sku: sku.trim() || null, category: category.trim() || undefined, description: description.trim() || undefined, status }
 
     onSubmit(data)
   }
@@ -57,6 +58,10 @@ export function ItemForm({ open, onOpenChange, onSubmit, item, isLoading }: Item
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Item name" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="sku">SKU</Label>
+            <Input id="sku" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. SKU-12345" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>

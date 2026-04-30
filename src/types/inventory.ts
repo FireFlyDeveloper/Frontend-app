@@ -6,6 +6,7 @@ export interface Item {
   id: string
   item_type: ItemType
   name: string
+  sku: string | null
   category: string | null
   description: string | null
   status: ItemStatus
@@ -102,6 +103,7 @@ export interface ScanResult {
 export interface CreateItemInput {
   item_type: ItemType
   name: string
+  sku?: string | null
   category?: string
   description?: string
   status?: ItemStatus
@@ -109,6 +111,7 @@ export interface CreateItemInput {
 
 export interface UpdateItemInput {
   name?: string
+  sku?: string | null
   category?: string
   description?: string
   status?: ItemStatus

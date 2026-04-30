@@ -66,7 +66,10 @@ function ItemWithLots({
           <Package className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{item.name}</p>
-            {item.description && (
+            {item.sku && (
+              <p className="text-xs font-mono text-primary truncate">{item.sku}</p>
+            )}
+            {item.description && !item.sku && (
               <p className="text-xs text-muted-foreground truncate">{item.description}</p>
             )}
           </div>
