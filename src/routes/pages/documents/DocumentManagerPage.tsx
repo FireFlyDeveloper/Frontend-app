@@ -6,6 +6,7 @@ import { FileList } from '@/components/documents/FileList'
 import { FileUploadZone } from '@/components/documents/FileUploadZone'
 import { ActivityLog } from '@/components/documents/ActivityLog'
 import { PermissionEditor } from '@/components/documents/PermissionEditor'
+import { FileViewer } from '@/components/documents/FileViewer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { useFolders, useCreateFolder } from '@/hooks/useFolders'
 import { useDocuments, useSearchDocuments, useDeleteDocument, useRenameDocument } from '@/hooks/useDocuments'
+import { DocumentFile } from '@/types/document'
 
 export function DocumentManagerPage() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
@@ -28,6 +30,7 @@ export function DocumentManagerPage() {
   const [showRename, setShowRename] = useState(false)
   const [renameValue, setRenameValue] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [viewDocument, setViewDocument] = useState<DocumentFile | null>(null)
 
   const { data: folders, isLoading: foldersLoading } = useFolders()
   const { data: documents, isLoading: documentsLoading } = useDocuments(selectedFolderId)
@@ -174,6 +177,7 @@ export function DocumentManagerPage() {
               isLoading={displayLoading}
               selectedDocumentId={selectedDocumentId}
               onSelectDocument={setSelectedDocumentId}
+              onView={(doc) => setViewDocument(doc)}
               onRename={(doc) => {
                 setRenameValue(doc.name)
                 setShowRename(true)
@@ -299,6 +303,14 @@ export function DocumentManagerPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* File Viewer Dialog */}
+      <FileViewer
+        open={!!viewDocument}
+        onOpenChange={(open) => {
+          if (!open) setViewDocument(null)
+        }}
+        document={viewDocument}
+      />
     </PageShell>
   )
 }

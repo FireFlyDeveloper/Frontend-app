@@ -34,14 +34,15 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
                 <Package className="h-5 w-5 text-primary" />
               )}
             </div>
-        <div className="min-w-0">
-          <p className="font-medium truncate">{item.name}</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="capitalize">{item.item_type}</span>
-            {item.category && <span>• {item.category}</span>}
-            {item.sku && <span className="font-mono text-primary">• {item.sku}</span>}
+            <div className="min-w-0">
+              <p className="font-medium truncate">{item.name}</p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="capitalize">{item.item_type}</span>
+                {item.category && <span>• {item.category}</span>}
+                {item.sku && <span className="font-mono text-primary">• {item.sku}</span>}
+              </div>
+            </div>
           </div>
-        </div>
           <Badge variant="outline" className={cn('shrink-0 text-xs', statusColors[item.status])}>
             {item.status}
           </Badge>

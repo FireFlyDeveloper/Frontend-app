@@ -1,4 +1,4 @@
-import { FileText, Download, Clock, Loader2, Pencil, Trash2, Shield } from 'lucide-react'
+import { FileText, Download, Clock, Loader2, Pencil, Trash2, Shield, Eye } from 'lucide-react'
 import { DocumentFile } from '@/types/document'
 import { formatFileSize, formatDate } from '@/lib/utils'
 import { useDownloadDocument } from '@/hooks/useDocuments'
@@ -10,12 +10,13 @@ interface FileListProps {
   isLoading: boolean
   selectedDocumentId: string | null
   onSelectDocument: (id: string | null) => void
+  onView?: (doc: DocumentFile) => void
   onRename?: (doc: DocumentFile) => void
   onDelete?: (doc: DocumentFile) => void
   onManagePermissions?: (doc: DocumentFile) => void
 }
 
-export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument, onRename, onDelete, onManagePermissions }: FileListProps) {
+export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument, onView, onRename, onDelete, onManagePermissions }: FileListProps) {
   const download = useDownloadDocument()
 
   if (isLoading) {
@@ -69,9 +70,22 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
               className="h-8 w-8"
               onClick={(e) => {
                 e.stopPropagation()
+                onView?.(doc)
+              }}
+              title="View"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation()
                 download.mutate({ id: doc.id, filename: doc.name })
               }}
               disabled={download.isPending}
+              title="Download"
             >
               {download.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
