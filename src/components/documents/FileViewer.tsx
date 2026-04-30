@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import mammoth from 'mammoth'
 import { X, Download, Loader2, FileText, AlertCircle } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import api from '@/api/client'
 
@@ -123,74 +117,76 @@ export function FileViewer({ open, onOpenChange, document: doc }: FileViewerProp
     }
   }
 
+  if (!open || !doc) return null
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-none w-[98vw] h-[98vh] p-0 flex flex-col overflow-hidden border-0 rounded-lg">
-        <DialogHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between">
-          <DialogTitle className="text-base truncate max-w-[70%]">
-            {doc?.name || 'File Viewer'}
-          </DialogTitle>
-          <div className="flex items-center gap-2">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b shrink-0 bg-card">
+        <h2 className="text-base font-semibold truncate max-w-[70%]">
+          {doc.name}
+        </h2>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" />
+            Download
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOpenChange(false)}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto bg-muted/30 flex items-center justify-center">
+        {loading && (
+          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p className="text-sm">Loading preview...</p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="flex flex-col items-center gap-3 text-muted-foreground max-w-md px-6 text-center">
+            <AlertCircle className="h-10 w-10 text-destructive" />
+            <p className="text-sm">{error}</p>
             <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onOpenChange(false)}>
-              <X className="h-4 w-4" />
+              Download File
             </Button>
           </div>
-        </DialogHeader>
+        )}
 
-        <div className="flex-1 overflow-auto bg-muted/30 flex items-center justify-center">
-          {loading && (
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="text-sm">Loading preview...</p>
-            </div>
-          )}
+        {!loading && !error && blobUrl && isPdf(doc.mime_type) && (
+          <iframe
+            src={blobUrl}
+            title={doc.name}
+            className="w-full h-full border-0"
+          />
+        )}
 
-          {!loading && error && (
-            <div className="flex flex-col items-center gap-3 text-muted-foreground max-w-md px-6 text-center">
-              <AlertCircle className="h-10 w-10 text-destructive" />
-              <p className="text-sm">{error}</p>
-              <Button variant="outline" size="sm" onClick={handleDownload}>
-                <Download className="h-4 w-4 mr-2" />
-                Download File
-              </Button>
-            </div>
-          )}
+        {!loading && !error && blobUrl && isImage(doc.mime_type) && (
+          <img
+            src={blobUrl}
+            alt={doc.name}
+            className="max-w-full max-h-full object-contain"
+          />
+        )}
 
-          {!loading && !error && blobUrl && isPdf(doc!.mime_type) && (
-            <iframe
-              src={blobUrl}
-              title={doc!.name}
-              className="w-full h-full border-0"
-            />
-          )}
+        {!loading && !error && docxHtml && (
+          <div
+            className="w-full h-full overflow-auto bg-white p-8 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: docxHtml }}
+          />
+        )}
 
-          {!loading && !error && blobUrl && isImage(doc!.mime_type) && (
-            <img
-              src={blobUrl}
-              alt={doc!.name}
-              className="max-w-full max-h-full object-contain"
-            />
-          )}
-
-          {!loading && !error && docxHtml && (
-            <div
-              className="w-full h-full overflow-auto bg-white p-8 prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: docxHtml }}
-            />
-          )}
-
-          {!loading && !error && !blobUrl && !docxHtml && (
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <FileText className="h-10 w-10 opacity-50" />
-              <p className="text-sm">No preview available</p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+        {!loading && !error && !blobUrl && !docxHtml && (
+          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <FileText className="h-10 w-10 opacity-50" />
+            <p className="text-sm">No preview available</p>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
