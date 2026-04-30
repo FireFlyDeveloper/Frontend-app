@@ -106,6 +106,8 @@ export type WSMessageType =
   | 'item_location'
   | 'item_status'
   | 'missing_alert'
+  | 'item_missing'
+  | 'item_transporting'
   | 'device_offline'
   | 'unregistered_tag'
   | 'connected'

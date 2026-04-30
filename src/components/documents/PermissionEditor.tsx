@@ -84,7 +84,7 @@ export function PermissionEditor({ type, id }: PermissionEditorProps) {
             className="flex-1"
           >
             <option value="">Select user...</option>
-            {usersQuery.data?.map((user) => (
+            {usersQuery.data?.users?.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.display_name} ({user.email})
               </option>

@@ -17,14 +17,15 @@ import {
 
 export function AdminPage() {
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
-  const { data: users, isLoading: usersLoading } = useUsers()
+  const { data: usersData, isLoading: usersLoading } = useUsers()
+  const users = usersData?.users ?? []
   const { data: rooms, isLoading: roomsLoading } = useRooms()
   const { data: devices, isLoading: devicesLoading } = useDevices()
 
   const isLoading = statsLoading || usersLoading || roomsLoading || devicesLoading
 
   const dbStats = [
-    { label: 'Users', value: users?.length ?? 0, icon: <Users className="h-4 w-4" /> },
+    { label: 'Users', value: users.length, icon: <Users className="h-4 w-4" /> },
     { label: 'Rooms', value: rooms?.length ?? 0, icon: <Database className="h-4 w-4" /> },
     { label: 'BLE Devices', value: devices?.length ?? 0, icon: <Server className="h-4 w-4" /> },
     { label: 'Items', value: stats?.totalItems ?? 0, icon: <Activity className="h-4 w-4" /> },
@@ -157,7 +158,7 @@ export function AdminPage() {
                 <Skeleton key={i} className="h-12" />
               ))}
             </div>
-          ) : users && users.length > 0 ? (
+          ) : users.length > 0 ? (
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
               {users.slice(0, 10).map((user) => (
                 <div
@@ -175,7 +176,7 @@ export function AdminPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="capitalize text-xs">
-                      {user.roles[0]}
+                      {user.roles[0]?.name ?? 'No role'}
                     </Badge>
                     <div
                       className={`h-2 w-2 rounded-full ${user.is_active ? 'bg-green-500' : 'bg-gray-400'}`}
