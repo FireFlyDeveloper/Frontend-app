@@ -140,7 +140,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
     ws.onerror = (err) => {
       console.error('WebSocket error:', err)
-      ws.close()
+      // Only call close() if the socket is actually open;
+      // if it's still CONNECTING the browser will abort it
+      // automatically and calling close() here produces the
+      // noisy "closed before connection established" warning.
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close()
+      }
     }
   }, [accessToken, addAlert])
 
