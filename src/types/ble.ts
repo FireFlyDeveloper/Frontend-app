@@ -75,6 +75,7 @@ export interface ItemPresence {
   room_name: string | null
   status: PresenceStatus
   last_seen: string | null
+  missing_since: string | null
   device_id: string | null
   device_name: string | null
 }

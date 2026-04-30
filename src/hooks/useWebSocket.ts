@@ -36,6 +36,7 @@ export function useWebSocketPresenceSync() {
                   device_id: p.device_id,
                   device_name: p.device_name,
                   status: 'present',
+                  missing_since: null,
                 }
               : item
           )
@@ -65,6 +66,7 @@ export function useWebSocketPresenceSync() {
                   room_id: p.last_room_id,
                   room_name: p.last_room_name,
                   last_seen: p.last_seen,
+                  missing_since: p.timestamp,
                 }
               : item
           )
@@ -82,6 +84,7 @@ export function useWebSocketPresenceSync() {
                   status: 'transporting',
                   room_id: p.room_id,
                   last_seen: p.timestamp,
+                  missing_since: null,
                 }
               : item
           )

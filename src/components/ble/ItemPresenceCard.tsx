@@ -1,8 +1,9 @@
 import { ItemPresence } from '@/types/ble'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { MapPin, Clock, Radio } from 'lucide-react'
+import { MapPin, Clock, Radio, Timer } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MissingTimer } from './MissingTimer'
 
 const statusConfig = {
   present: { label: 'Present', variant: 'default' as const, className: 'bg-green-600 hover:bg-green-600' },
@@ -42,6 +43,12 @@ export function ItemPresenceCard({ presence, onClick }: ItemPresenceCardProps) {
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 shrink-0" />
             <span>{new Date(presence.last_seen).toLocaleString()}</span>
+          </div>
+        )}
+        {presence.status === 'missing' && presence.missing_since && (
+          <div className="flex items-center gap-2 text-red-600 font-medium">
+            <Timer className="h-4 w-4 shrink-0 animate-pulse" />
+            <MissingTimer missingSince={presence.missing_since} />
           </div>
         )}
         {presence.device_name && (
