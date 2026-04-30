@@ -20,6 +20,7 @@ export function RoomGrid({ rooms, presence, onRoomClick }: RoomGridProps) {
           const roomPresence = presence.filter((p) => p.room_id === room.id)
           const presentCount = roomPresence.filter((p) => p.status === 'present').length
           const missingCount = roomPresence.filter((p) => p.status === 'missing').length
+          const transportingCount = roomPresence.filter((p) => p.status === 'transporting').length
 
           return (
             <Card
@@ -47,6 +48,12 @@ export function RoomGrid({ rooms, presence, onRoomClick }: RoomGridProps) {
                     <span className="h-2 w-2 rounded-full bg-green-500" />
                     <span>{presentCount} present</span>
                   </div>
+                  {transportingCount > 0 && (
+                    <div className="flex items-center gap-1 text-blue-600">
+                      <span className="h-2 w-2 rounded-full bg-blue-500" />
+                      <span>{transportingCount} transporting</span>
+                    </div>
+                  )}
                   {missingCount > 0 && (
                     <div className="flex items-center gap-1 text-red-600">
                       <span className="h-2 w-2 rounded-full bg-red-500" />

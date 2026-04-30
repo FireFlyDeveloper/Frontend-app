@@ -25,6 +25,7 @@ export function TrackingDashboardPage() {
   const isLoading = roomsLoading || presenceLoading || devicesLoading
 
   const presentCount = presence?.filter((p) => p.status === 'present').length || 0
+  const transportingCount = presence?.filter((p) => p.status === 'transporting').length || 0
   const missingCount = presence?.filter((p) => p.status === 'missing').length || 0
   const offlineDevices = devices?.filter((d) => d.status === 'offline').length || 0
 
@@ -52,7 +53,7 @@ export function TrackingDashboardPage() {
       ) : (
         <div className="space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded-lg border bg-card p-4 flex items-center gap-4">
               <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                 <Package className="h-5 w-5 text-green-600" />
@@ -60,6 +61,15 @@ export function TrackingDashboardPage() {
               <div>
                 <p className="text-2xl font-bold">{presentCount}</p>
                 <p className="text-sm text-muted-foreground">Items Present</p>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-card p-4 flex items-center gap-4">
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <Bluetooth className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{transportingCount}</p>
+                <p className="text-sm text-muted-foreground">Items Transporting</p>
               </div>
             </div>
             <div className="rounded-lg border bg-card p-4 flex items-center gap-4">

@@ -52,6 +52,7 @@ export function useWebSocketPresenceSync() {
         })
         break
       }
+      case 'item_missing':
       case 'missing_alert': {
         const p = lastMessage.payload as MissingAlertPayload
         queryClient.setQueryData<ItemPresence[]>(['ble-presence'], (old) => {
@@ -64,6 +65,23 @@ export function useWebSocketPresenceSync() {
                   room_id: p.last_room_id,
                   room_name: p.last_room_name,
                   last_seen: p.last_seen,
+                }
+              : item
+          )
+        })
+        break
+      }
+      case 'item_transporting': {
+        const p = lastMessage.payload as { item_id: string; room_id: string | null; rssi: number; timestamp: string }
+        queryClient.setQueryData<ItemPresence[]>(['ble-presence'], (old) => {
+          if (!old) return old
+          return old.map((item) =>
+            item.item_id === p.item_id
+              ? {
+                  ...item,
+                  status: 'transporting',
+                  room_id: p.room_id,
+                  last_seen: p.timestamp,
                 }
               : item
           )

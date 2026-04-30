@@ -23,14 +23,14 @@ export function DevicesPage() {
   const [deviceId, setDeviceId] = useState('')
   const [name, setName] = useState('')
   const [roomId, setRoomId] = useState('')
-  const [firmwareVersion, setFirmwareVersion] = useState('')
+  const [rssiRange, setRssiRange] = useState<number | ''>('')
 
   const openCreate = () => {
     setEditingDevice(null)
     setDeviceId('')
     setName('')
     setRoomId('')
-    setFirmwareVersion('')
+    setRssiRange('')
     setDialogOpen(true)
   }
 
@@ -39,7 +39,7 @@ export function DevicesPage() {
     setDeviceId(device.device_id)
     setName(device.name)
     setRoomId(device.room_id || '')
-    setFirmwareVersion(device.firmware_version || '')
+    setRssiRange(device.rssi_range ?? '')
     setDialogOpen(true)
   }
 
@@ -53,7 +53,7 @@ export function DevicesPage() {
         data: {
           name,
           room_id: roomId || null,
-          firmware_version: firmwareVersion || undefined,
+          rssi_range: rssiRange !== '' ? Number(rssiRange) : undefined,
         },
       })
     } else {
@@ -61,7 +61,7 @@ export function DevicesPage() {
         device_id: deviceId,
         name,
         room_id: roomId || undefined,
-        firmware_version: firmwareVersion || undefined,
+        rssi_range: rssiRange !== '' ? Number(rssiRange) : undefined,
       })
     }
     setDialogOpen(false)
@@ -161,13 +161,15 @@ export function DevicesPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="firmware">Firmware Version</Label>
+              <Label htmlFor="rssi">RSSI Range (dBm)</Label>
               <Input
-                id="firmware"
-                value={firmwareVersion}
-                onChange={(e) => setFirmwareVersion(e.target.value)}
-                placeholder="e.g. 1.2.3"
+                id="rssi"
+                type="number"
+                value={rssiRange}
+                onChange={(e) => setRssiRange(e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder="e.g. -70"
               />
+              <p className="text-xs text-muted-foreground">Threshold for detecting presence in this room. Smaller rooms can use a higher value (e.g. -60).</p>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

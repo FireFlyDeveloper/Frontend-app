@@ -9,6 +9,7 @@ const statusConfig = {
   missing: { label: 'Missing', variant: 'destructive' as const, className: '' },
   inactive: { label: 'Inactive', variant: 'secondary' as const, className: '' },
   maintenance: { label: 'Maintenance', variant: 'outline' as const, className: 'text-amber-600 border-amber-300' },
+  transporting: { label: 'Transporting', variant: 'outline' as const, className: 'text-blue-600 border-blue-300' },
 }
 
 interface ItemPresenceCardProps {

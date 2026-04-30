@@ -39,8 +39,8 @@ export function DeviceStatusCard({ device }: DeviceStatusCardProps) {
             <span>{new Date(device.last_seen).toLocaleString()}</span>
           </div>
         )}
-        {device.firmware_version && (
-          <div className="text-xs">Firmware: {device.firmware_version}</div>
+        {device.rssi_range !== null && device.rssi_range !== undefined && (
+          <div className="text-xs">RSSI Range: {device.rssi_range} dBm</div>
         )}
       </CardContent>
     </Card>

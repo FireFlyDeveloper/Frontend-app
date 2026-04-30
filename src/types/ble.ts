@@ -1,4 +1,4 @@
-export type PresenceStatus = 'present' | 'missing' | 'inactive' | 'maintenance'
+export type PresenceStatus = 'present' | 'missing' | 'inactive' | 'maintenance' | 'transporting'
 export type DeviceStatus = 'online' | 'offline'
 
 export interface Room {
@@ -27,7 +27,7 @@ export interface BleDevice {
   room_name?: string | null
   status: DeviceStatus
   last_seen: string | null
-  firmware_version: string | null
+  rssi_range: number | null
   created_at: string
   updated_at: string
 }
@@ -36,13 +36,13 @@ export interface CreateDeviceInput {
   device_id: string
   name: string
   room_id?: string
-  firmware_version?: string
+  rssi_range?: number
 }
 
 export interface UpdateDeviceInput {
   name?: string
   room_id?: string | null
-  firmware_version?: string
+  rssi_range?: number
 }
 
 export interface BleTag {
