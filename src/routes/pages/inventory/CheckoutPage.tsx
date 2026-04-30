@@ -1,26 +1,136 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, ArrowLeft } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Plus, Package, ChevronDown, ChevronRight } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { BarcodeScanner } from '@/components/inventory/BarcodeScanner'
 import { CheckoutCart, CartItem } from '@/components/inventory/CheckoutCart'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/authStore'
 import { useScanCode, useCreateCheckout } from '@/hooks/useCheckout'
+import { useItems } from '@/hooks/useItems'
+import { useLots } from '@/hooks/useLots'
 import { useUIStore } from '@/stores/uiStore'
-import { ItemLot } from '@/types/inventory'
+import { ItemLot, Item } from '@/types/inventory'
+
+function LotRow({
+  lot,
+  onAdd,
+}: {
+  lot: ItemLot
+  onAdd: (lot: ItemLot) => void
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-md border p-2 text-sm">
+      <div className="min-w-0">
+        <p className="font-medium truncate">{lot.lot_code}</p>
+        <p className="text-xs text-muted-foreground">
+          On hand: {lot.quantity_on_hand} | Out: {lot.quantity_out}
+        </p>
+      </div>
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-7 px-2 shrink-0"
+        disabled={lot.quantity_on_hand <= 0}
+        onClick={() => onAdd(lot)}
+      >
+        <Plus className="h-3.5 w-3.5 mr-1" />
+        Add
+      </Button>
+    </div>
+  )
+}
+
+function ItemWithLots({
+  item,
+  onAddLot,
+}: {
+  item: Item
+  onAddLot: (lot: ItemLot) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const { data: lots, isLoading } = useLots(expanded ? item.id : null)
+
+  const availableLots = lots?.filter((l) => l.quantity_on_hand > 0) ?? []
+
+  return (
+    <div className="rounded-lg border">
+      <button
+        className="flex items-center justify-between w-full p-3 text-left hover:bg-accent/50 transition-colors"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <Package className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{item.name}</p>
+            {item.description && (
+              <p className="text-xs text-muted-foreground truncate">{item.description}</p>
+            )}
+          </div>
+        </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </div>
+      </button>
+
+      {expanded && (
+        <div className="px-3 pb-3 space-y-2">
+          {isLoading ? (
+            <Skeleton className="h-10" />
+          ) : availableLots.length > 0 ? (
+            availableLots.map((lot) => (
+              <LotRow key={lot.id} lot={lot} onAdd={onAddLot} />
+            ))
+          ) : (
+            <p className="text-xs text-muted-foreground py-1">No available lots</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function CheckoutPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const addToast = useUIStore((state) => state.addToast)
-  const canCheckout = user?.can_checkout_quantifiable === true
+  const isAdmin = user?.roles?.includes('admin') ?? false
+  const canCheckout = user?.can_checkout_quantifiable === true || isAdmin
 
+  const addToast = useUIStore((state) => state.addToast)
   const [cart, setCart] = useState<CartItem[]>([])
+  const [itemSearch, setItemSearch] = useState('')
 
   const scanCode = useScanCode()
   const createCheckout = useCreateCheckout()
+
+  const { data: items, isLoading: itemsLoading } = useItems({
+    type: 'quantifiable',
+    status: 'active',
+    search: itemSearch || undefined,
+  })
+
+  const addLotToCart = useCallback(
+    (lot: ItemLot) => {
+      setCart((prev) => {
+        const existing = prev.find((c) => c.lot.id === lot.id)
+        if (existing) {
+          if (existing.quantity >= lot.quantity_on_hand) {
+            addToast({ message: 'Maximum available quantity reached', type: 'warning' })
+            return prev
+          }
+          return prev.map((c) =>
+            c.lot.id === lot.id ? { ...c, quantity: c.quantity + 1 } : c
+          )
+        }
+        return [...prev, { lot, quantity: 1 }]
+      })
+      addToast({ message: `Added ${lot.lot_code}`, type: 'success' })
+    },
+    [addToast]
+  )
 
   const handleScan = useCallback(
     (code: string) => {
@@ -32,27 +142,17 @@ export function CheckoutPage() {
               addToast({ message: 'This lot is out of stock', type: 'warning' })
               return
             }
-            setCart((prev) => {
-              const existing = prev.find((c) => c.lot.id === lot.id)
-              if (existing) {
-                if (existing.quantity >= lot.quantity_on_hand) {
-                  addToast({ message: 'Maximum available quantity reached', type: 'warning' })
-                  return prev
-                }
-                return prev.map((c) =>
-                  c.lot.id === lot.id ? { ...c, quantity: c.quantity + 1 } : c
-                )
-              }
-              return [...prev, { lot, quantity: 1 }]
-            })
-            addToast({ message: `Added ${lot.lot_code}`, type: 'success' })
+            addLotToCart(lot)
           } else if (result.type === 'item' && result.item) {
-            addToast({ message: `Scanned item: ${result.item.name}. Please scan a lot code to checkout.`, type: 'info' })
+            addToast({
+              message: `Scanned item: ${result.item.name}. Please scan a lot code or select from list.`,
+              type: 'info',
+            })
           }
         },
       })
     },
-    [scanCode, addToast]
+    [scanCode, addToast, addLotToCart]
   )
 
   const handleUpdateQuantity = useCallback((lotId: string, quantity: number) => {
@@ -95,7 +195,7 @@ export function CheckoutPage() {
   }
 
   return (
-    <PageShell title="Checkout" description="Scan or add items to checkout">
+    <PageShell title="Checkout" description="Select items or scan barcodes to checkout">
       <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory
@@ -103,9 +203,46 @@ export function CheckoutPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
+          {/* Barcode Scanner */}
           <Card>
-            <CardContent className="p-4">
+            <CardHeader>
+              <CardTitle className="text-base">Barcode Scanner</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
               <BarcodeScanner onScan={handleScan} isLoading={scanCode.isPending} />
+            </CardContent>
+          </Card>
+
+          {/* Browsable Item List */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Available Items</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              <Input
+                placeholder="Search quantifiable items..."
+                value={itemSearch}
+                onChange={(e) => setItemSearch(e.target.value)}
+              />
+
+              {itemsLoading ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12" />
+                  ))}
+                </div>
+              ) : items && items.length > 0 ? (
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                  {items.map((item) => (
+                    <ItemWithLots key={item.id} item={item} onAddLot={addLotToCart} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No quantifiable items found</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

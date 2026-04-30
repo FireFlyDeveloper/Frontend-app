@@ -56,7 +56,7 @@ export function UsersPage() {
   const [formName, setFormName] = useState('')
   const [formPassword, setFormPassword] = useState('')
   const [formActive, setFormActive] = useState(true)
-  const [formRoleIds, setFormRoleIds] = useState<string[]>([])
+  const [formRoleId, setFormRoleId] = useState<string>('')
 
   const { data, isLoading } = useUsers({
     page,
@@ -91,7 +91,7 @@ export function UsersPage() {
     setFormName('')
     setFormPassword('')
     setFormActive(true)
-    setFormRoleIds([])
+    setFormRoleId('')
     setDialogOpen(true)
   }
 
@@ -101,7 +101,7 @@ export function UsersPage() {
     setFormName(user.display_name)
     setFormPassword('')
     setFormActive(user.is_active)
-    setFormRoleIds(user.roles.map((r) => r.id))
+    setFormRoleId(user.roles[0]?.id ?? '')
     setDialogOpen(true)
   }
 
@@ -109,12 +109,14 @@ export function UsersPage() {
     e.preventDefault()
     if (!formEmail.trim() || !formName.trim()) return
 
+    const role_ids = formRoleId ? [formRoleId] : []
+
     if (editingUser) {
       const data: Partial<CreateUserInput> = {
         email: formEmail,
         display_name: formName,
         is_active: formActive,
-        role_ids: formRoleIds,
+        role_ids,
       }
       if (formPassword) {
         data.password = formPassword
@@ -127,7 +129,7 @@ export function UsersPage() {
         display_name: formName,
         password: formPassword,
         is_active: formActive,
-        role_ids: formRoleIds,
+        role_ids,
       })
     }
     setDialogOpen(false)
@@ -137,12 +139,6 @@ export function UsersPage() {
     if (confirm('Are you sure you want to delete this user?')) {
       deleteUser.mutate(id)
     }
-  }
-
-  const toggleRole = (roleId: string) => {
-    setFormRoleIds((prev) =>
-      prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId]
-    )
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -380,7 +376,7 @@ export function UsersPage() {
 
             {/* Role Assignment */}
             <div className="space-y-2">
-              <Label>Roles</Label>
+              <Label>Role</Label>
               <div className="space-y-2 rounded-md border p-3">
                 {roles?.map((role) => (
                   <label
@@ -388,10 +384,11 @@ export function UsersPage() {
                     className="flex items-center gap-3 cursor-pointer"
                   >
                     <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300"
-                      checked={formRoleIds.includes(role.id)}
-                      onChange={() => toggleRole(role.id)}
+                      type="radio"
+                      name="role"
+                      className="h-4 w-4 border-gray-300"
+                      checked={formRoleId === role.id}
+                      onChange={() => setFormRoleId(role.id)}
                     />
                     <div>
                       <p className="text-sm font-medium capitalize">{role.name}</p>
