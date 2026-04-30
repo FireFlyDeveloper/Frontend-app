@@ -8,6 +8,7 @@ export function useCheckouts(filters?: { status?: string; user_id?: string; item
     queryKey: ['checkouts', filters],
     queryFn: () => inventoryApi.getCheckouts(filters).then((res) => res.data.transactions),
     staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -16,6 +17,8 @@ export function useCheckout(id: string | null) {
     queryKey: ['checkout', id],
     queryFn: () => inventoryApi.getCheckout(id!).then((res) => res.data),
     enabled: !!id,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 

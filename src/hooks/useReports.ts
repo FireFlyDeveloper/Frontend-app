@@ -6,6 +6,7 @@ export function useInventoryMovementReport(filters?: ReportFilters) {
     queryKey: ['report-inventory-movement', filters],
     queryFn: () => reportsApi.getInventoryMovement(filters).then((res) => res.data),
     staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 
@@ -14,6 +15,7 @@ export function useCheckoutHistoryReport(filters?: ReportFilters) {
     queryKey: ['report-checkout-history', filters],
     queryFn: () => reportsApi.getCheckoutHistory(filters).then((res) => res.data),
     staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 
@@ -22,6 +24,7 @@ export function useMissingHistoryReport(filters?: ReportFilters) {
     queryKey: ['report-missing-history', filters],
     queryFn: () => reportsApi.getMissingHistory(filters).then((res) => res.data),
     staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 
@@ -30,5 +33,6 @@ export function useDeviceHealthReport(filters?: ReportFilters) {
     queryKey: ['report-device-health', filters],
     queryFn: () => reportsApi.getDeviceHealth(filters).then((res) => res.data),
     staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }

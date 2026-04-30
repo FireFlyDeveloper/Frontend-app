@@ -6,6 +6,7 @@ export function useDashboardStats() {
     queryKey: ['dashboard-stats'],
     queryFn: () => dashboardApi.getStats().then((res) => res.data),
     staleTime: 30 * 1000,
+    refetchInterval: 15 * 1000,
   })
 }
 
@@ -14,6 +15,7 @@ export function useRecentActivity(limit = 20) {
     queryKey: ['recent-activity', limit],
     queryFn: () => dashboardApi.getRecentActivity({ limit }).then((res) => res.data),
     staleTime: 30 * 1000,
+    refetchInterval: 15 * 1000,
   })
 }
 
@@ -22,5 +24,6 @@ export function useRoomStatus() {
     queryKey: ['room-status'],
     queryFn: () => dashboardApi.getRoomStatus().then((res) => res.data),
     staleTime: 30 * 1000,
+    refetchInterval: 15 * 1000,
   })
 }

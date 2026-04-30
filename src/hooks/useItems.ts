@@ -8,6 +8,7 @@ export function useItems(filters?: { type?: string; category?: string; status?: 
     queryKey: ['items', filters],
     queryFn: () => inventoryApi.getItems(filters).then((res) => res.data.items),
     staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -16,6 +17,8 @@ export function useItem(id: string | null) {
     queryKey: ['item', id],
     queryFn: () => inventoryApi.getItem(id!).then((res) => res.data.item),
     enabled: !!id,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 

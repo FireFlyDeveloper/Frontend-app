@@ -8,6 +8,7 @@ export function useFolders() {
     queryKey: ['folders'],
     queryFn: () => documentsApi.getFolders().then((res) => res.data),
     staleTime: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 
@@ -16,6 +17,8 @@ export function useFolder(id: string | null) {
     queryKey: ['folder', id],
     queryFn: () => documentsApi.getFolder(id!).then((res) => res.data),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 

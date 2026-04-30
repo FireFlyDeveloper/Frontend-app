@@ -14,6 +14,7 @@ export function useUsers(params?: {
     queryKey: ['users', params],
     queryFn: () => usersApi.getUsers(params),
     staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -22,6 +23,7 @@ export function useRoles() {
     queryKey: ['roles'],
     queryFn: () => usersApi.getRoles(),
     staleTime: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 }
 

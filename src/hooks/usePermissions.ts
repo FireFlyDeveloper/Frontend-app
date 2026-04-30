@@ -8,6 +8,8 @@ export function useDocumentPermissions(documentId: string | null) {
     queryFn: () =>
       documentsApi.getDocumentPermissions(documentId!).then((res) => res.data),
     enabled: !!documentId,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -65,6 +67,8 @@ export function useFolderPermissions(folderId: string | null) {
     queryFn: () =>
       documentsApi.getFolderPermissions(folderId!).then((res) => res.data),
     enabled: !!folderId,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 

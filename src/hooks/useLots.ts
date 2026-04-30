@@ -8,6 +8,8 @@ export function useLots(itemId: string | null) {
     queryKey: ['lots', itemId],
     queryFn: () => inventoryApi.getLots(itemId!).then((res) => res.data.lots),
     enabled: !!itemId,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 

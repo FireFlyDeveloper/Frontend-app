@@ -8,6 +8,8 @@ export function useDocuments(folderId: string | null) {
     queryFn: () =>
       documentsApi.getFolderDocuments(folderId!).then((res) => res.data),
     enabled: !!folderId,
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 

@@ -17,6 +17,7 @@ export function useRooms() {
     queryKey: ['ble-rooms'],
     queryFn: () => bleApi.getRooms().then((res) => res.data.rooms),
     staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -76,6 +77,7 @@ export function useDevices() {
     queryKey: ['ble-devices'],
     queryFn: () => bleApi.getDevices().then((res) => res.data.devices),
     staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -135,6 +137,7 @@ export function useBleTags() {
     queryKey: ['ble-tags'],
     queryFn: () => bleApi.getTags().then((res) => res.data.tags),
     staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
   })
 }
 
@@ -227,6 +230,7 @@ export function usePresence() {
     queryKey: ['ble-presence'],
     queryFn: () => bleApi.getPresence().then((res) => res.data.presence),
     staleTime: 15 * 1000,
+    refetchInterval: 10 * 1000,
   })
 }
 
@@ -236,5 +240,6 @@ export function usePresenceDetail(itemId: string | null) {
     queryFn: () => bleApi.getPresenceDetail(itemId!).then((res) => res.data),
     enabled: !!itemId,
     staleTime: 15 * 1000,
+    refetchInterval: 10 * 1000,
   })
 }
