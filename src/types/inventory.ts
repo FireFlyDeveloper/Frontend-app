@@ -1,6 +1,6 @@
 export type ItemType = 'trackable' | 'quantifiable'
 export type ItemStatus = 'active' | 'inactive' | 'maintenance'
-export type CheckoutStatus = 'open' | 'partially_returned' | 'closed' | 'cancelled'
+export type CheckoutStatus = 'pending_approval' | 'open' | 'partially_returned' | 'closed' | 'cancelled' | 'rejected'
 
 export interface Item {
   id: string

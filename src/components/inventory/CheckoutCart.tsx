@@ -98,7 +98,7 @@ export function CheckoutCart({ items, onUpdateQuantity, onRemove, onCheckout, is
           onClick={() => onCheckout(notes)}
           disabled={isLoading || items.length === 0}
         >
-          {isLoading ? 'Processing...' : 'Submit Checkout'}
+          {isLoading ? 'Processing...' : items.length === 0 ? 'Cart is empty' : 'Submit Checkout'}
         </Button>
       </CardContent>
     </Card>

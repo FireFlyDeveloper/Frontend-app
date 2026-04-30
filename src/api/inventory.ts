@@ -42,6 +42,12 @@ export const inventoryApi = {
 
   createCheckout: (data: CheckoutInput) => api.post<CheckoutResult>('/checkout', data),
 
+  approveCheckout: (id: string) =>
+    api.post<{ transaction: CheckoutTransaction }>(`/checkout/${id}/approve`),
+
+  rejectCheckout: (id: string) =>
+    api.post<{ transaction: CheckoutTransaction }>(`/checkout/${id}/reject`),
+
   returnCheckout: (id: string, data: ReturnInput) =>
     api.post<ReturnResult>(`/checkout/${id}/return`, data),
 

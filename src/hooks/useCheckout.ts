@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { inventoryApi } from '@/api/inventory'
 import { useUIStore } from '@/stores/uiStore'
+import { useAuthStore } from '@/stores/authStore'
 import { CheckoutInput, ReturnInput } from '@/types/inventory'
 
 export function useCheckouts(filters?: { status?: string; user_id?: string; item_id?: string }) {
@@ -25,6 +26,8 @@ export function useCheckout(id: string | null) {
 export function useCreateCheckout() {
   const queryClient = useQueryClient()
   const addToast = useUIStore((state) => state.addToast)
+  const user = useAuthStore((state) => state.user)
+  const isAdminOrStaff = user?.roles?.includes('admin') || user?.roles?.includes('staff')
 
   return useMutation({
     mutationFn: (data: CheckoutInput) =>
@@ -33,10 +36,49 @@ export function useCreateCheckout() {
       queryClient.invalidateQueries({ queryKey: ['checkouts'] })
       queryClient.invalidateQueries({ queryKey: ['lots'] })
       queryClient.invalidateQueries({ queryKey: ['items'] })
-      addToast({ message: 'Checkout completed successfully', type: 'success' })
+      const msg = isAdminOrStaff
+        ? 'Checkout completed successfully'
+        : 'Checkout request submitted for approval'
+      addToast({ message: msg, type: 'success' })
     },
     onError: (err: any) => {
       addToast({ message: err?.response?.data?.error || 'Checkout failed', type: 'error' })
+    },
+  })
+}
+
+export function useApproveCheckout() {
+  const queryClient = useQueryClient()
+  const addToast = useUIStore((state) => state.addToast)
+
+  return useMutation({
+    mutationFn: (id: string) => inventoryApi.approveCheckout(id).then((res) => res.data.transaction),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['checkouts'] })
+      queryClient.invalidateQueries({ queryKey: ['checkout', id] })
+      queryClient.invalidateQueries({ queryKey: ['lots'] })
+      queryClient.invalidateQueries({ queryKey: ['items'] })
+      addToast({ message: 'Checkout approved', type: 'success' })
+    },
+    onError: (err: any) => {
+      addToast({ message: err?.response?.data?.error || 'Approval failed', type: 'error' })
+    },
+  })
+}
+
+export function useRejectCheckout() {
+  const queryClient = useQueryClient()
+  const addToast = useUIStore((state) => state.addToast)
+
+  return useMutation({
+    mutationFn: (id: string) => inventoryApi.rejectCheckout(id).then((res) => res.data.transaction),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['checkouts'] })
+      queryClient.invalidateQueries({ queryKey: ['checkout', id] })
+      addToast({ message: 'Checkout rejected', type: 'success' })
+    },
+    onError: (err: any) => {
+      addToast({ message: err?.response?.data?.error || 'Rejection failed', type: 'error' })
     },
   })
 }
