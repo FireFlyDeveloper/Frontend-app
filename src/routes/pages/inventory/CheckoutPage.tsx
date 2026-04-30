@@ -99,8 +99,8 @@ function ItemWithLots({
 export function CheckoutPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
-  const isAdmin = user?.roles?.includes('admin') ?? false
-  const canCheckout = user?.can_checkout_quantifiable === true || isAdmin
+  // All authenticated users can create checkout requests
+  const canCheckout = !!user
 
   const addToast = useUIStore((state) => state.addToast)
   const [cart, setCart] = useState<CartItem[]>([])
