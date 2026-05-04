@@ -328,9 +328,6 @@ export function ItemDetailPage() {
                   <tr className="border-b text-muted-foreground">
                     <th className="text-left py-2 px-3">Room</th>
                     <th className="text-left py-2 px-3">Detected At</th>
-                    <th className="text-left py-2 px-3">Device</th>
-                    <th className="text-left py-2 px-3">RSSI</th>
-                    <th className="text-left py-2 px-3">Conflict</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -339,17 +336,6 @@ export function ItemDetailPage() {
                       <td className="py-2 px-3 font-medium">{entry.room_name}</td>
                       <td className="py-2 px-3">
                         {new Date(entry.detected_at).toLocaleString()}
-                      </td>
-                      <td className="py-2 px-3">{entry.device_name}</td>
-                      <td className="py-2 px-3">{entry.rssi ?? '—'}</td>
-                      <td className="py-2 px-3">
-                        {entry.has_conflict ? (
-                          <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
-                            Conflict
-                          </Badge>
-                        ) : (
-                          '—'
-                        )}
                       </td>
                     </tr>
                   ))}
