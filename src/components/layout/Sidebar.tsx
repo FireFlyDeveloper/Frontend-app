@@ -162,7 +162,7 @@ export function Sidebar() {
         {sidebarOpen && (
           <Link to="/" className="flex items-center gap-2 font-bold text-lg">
             <FileText className="h-6 w-6" />
-            <span>Dragonfly</span>
+            <span>Records</span>
           </Link>
         )}
         <button
