@@ -190,15 +190,15 @@ export function CheckoutPage() {
       <PageShell title="Checkout">
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <ShoppingCart className="h-12 w-12 mb-4 opacity-50" />
-          <p className="text-lg font-medium">Checkout not available</p>
-          <p className="text-sm">You do not have permission to checkout items.</p>
+          <p className="text-lg font-medium">Request not available</p>
+          <p className="text-sm">You do not have permission to request items.</p>
         </div>
       </PageShell>
     )
   }
 
   return (
-    <PageShell title="Checkout" description="Select items or scan barcodes to checkout">
+    <PageShell title="Checkout" description="Select items or scan barcodes to request">
       <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory

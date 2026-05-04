@@ -102,7 +102,7 @@ export function CheckoutHistoryPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <Package className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Checkout #{txn.id.slice(0, 8)}</span>
+                        <span className="text-sm font-medium">Request #{txn.id.slice(0, 8)}</span>
                         <Badge variant="outline" className={cn('text-xs flex items-center gap-1', status.color)}>
                           {status.icon}
                           {status.label}
