@@ -27,7 +27,7 @@ export function CheckoutCart({ items, onUpdateQuantity, onRemove, onCheckout, is
         <CardContent className="p-6 flex flex-col items-center justify-center text-muted-foreground">
           <ShoppingCart className="h-10 w-10 mb-2 opacity-50" />
           <p className="text-sm">Your cart is empty</p>
-          <p className="text-xs">Scan or add items to checkout</p>
+          <p className="text-xs">Scan or add items to request</p>
         </CardContent>
       </Card>
     )
@@ -38,7 +38,7 @@ export function CheckoutCart({ items, onUpdateQuantity, onRemove, onCheckout, is
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <ShoppingCart className="h-4 w-4" />
-          Checkout Cart ({items.length})
+          Request Cart ({items.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -88,7 +88,7 @@ export function CheckoutCart({ items, onUpdateQuantity, onRemove, onCheckout, is
           <Input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional checkout notes"
+            placeholder="Optional request notes"
             disabled={isLoading}
           />
         </div>
@@ -98,7 +98,7 @@ export function CheckoutCart({ items, onUpdateQuantity, onRemove, onCheckout, is
           onClick={() => onCheckout(notes)}
           disabled={isLoading || items.length === 0}
         >
-          {isLoading ? 'Processing...' : items.length === 0 ? 'Cart is empty' : 'Submit Checkout'}
+          {isLoading ? 'Processing...' : items.length === 0 ? 'Cart is empty' : 'Submit Request'}
         </Button>
       </CardContent>
     </Card>
