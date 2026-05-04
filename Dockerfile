@@ -10,5 +10,7 @@ RUN bun install
 # 2. NOW copy the full source
 COPY . .
 
+EXPOSE 5173
+
 # 4. run app
 CMD ["bun", "run", "dev"]
