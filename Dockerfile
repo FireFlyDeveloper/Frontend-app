@@ -10,8 +10,5 @@ RUN bun install
 # 2. NOW copy the full source
 COPY . .
 
-# 3. build AFTER source exists
-RUN bun run build
-
 # 4. run app
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "dev"]
