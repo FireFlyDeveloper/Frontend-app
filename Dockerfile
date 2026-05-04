@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package.json ./
 RUN bun install
+RUN bun run build
 
 COPY . .
 
-CMD ["bun", "run", "dev"]
+CMD ["bun", "run", "start"]
