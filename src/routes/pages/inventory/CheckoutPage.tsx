@@ -187,7 +187,7 @@ export function CheckoutPage() {
 
   if (!canCheckout) {
     return (
-      <PageShell title="Checkout">
+      <PageShell title="Request">
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <ShoppingCart className="h-12 w-12 mb-4 opacity-50" />
           <p className="text-lg font-medium">Request not available</p>
@@ -198,7 +198,7 @@ export function CheckoutPage() {
   }
 
   return (
-    <PageShell title="Checkout" description="Select items or scan barcodes to request">
+    <PageShell title="Request" description="Select items or scan barcodes to request">
       <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory

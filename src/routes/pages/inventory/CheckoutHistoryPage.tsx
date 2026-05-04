@@ -66,7 +66,7 @@ export function CheckoutHistoryPage() {
   const canApprove = (status: CheckoutStatus) => status === 'pending_approval'
 
   return (
-    <PageShell title="Checkout History" description="View and manage checkouts">
+    <PageShell title="Request History" description="View and manage requests">
       <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory
@@ -226,7 +226,7 @@ export function CheckoutHistoryPage() {
       ) : (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <Package className="h-12 w-12 mb-4 opacity-50" />
-          <p className="text-lg font-medium">No checkouts found</p>
+          <p className="text-lg font-medium">No requests found</p>
         </div>
       )}
     </PageShell>
