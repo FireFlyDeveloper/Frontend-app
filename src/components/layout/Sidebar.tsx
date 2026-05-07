@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     path: '/',
     icon: <LayoutDashboard className="h-5 w-5" />,
-    roles: ['admin', 'staff', 'student'],
+    roles: ['admin', 'staff'],
   },
   {
     label: 'Documents',
@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
     label: 'Inventory',
     path: '/inventory',
     icon: <Package className="h-5 w-5" />,
-    roles: ['admin', 'staff', 'student'],
+    roles: ['admin', 'staff'],
   },
   {
     label: 'Request',

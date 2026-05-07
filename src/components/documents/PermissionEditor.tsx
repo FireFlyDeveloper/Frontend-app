@@ -99,7 +99,6 @@ export function PermissionEditor({ type, id }: PermissionEditorProps) {
             <option value="">Select role...</option>
             <option value="admin">Admin</option>
             <option value="staff">Staff</option>
-            <option value="student">Student</option>
           </Select>
         )}
 

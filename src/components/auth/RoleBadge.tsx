@@ -7,7 +7,6 @@ interface RoleBadgeProps {
 const roleColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   admin: 'destructive',
   staff: 'default',
-  student: 'secondary',
 }
 
 export function RoleBadge({ role }: RoleBadgeProps) {
