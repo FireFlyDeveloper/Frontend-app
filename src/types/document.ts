@@ -42,6 +42,10 @@ export interface Permission {
   user_id?: string;
   role_id?: string;
   permission: 'viewer' | 'editor' | 'manager';
+  // JOINed from backend
+  user_display_name?: string;
+  user_email?: string;
+  role_name?: string;
   user?: {
     id: string;
     display_name: string;

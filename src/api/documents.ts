@@ -61,7 +61,7 @@ export const documentsApi = {
 
   // Permissions
   getDocumentPermissions: (id: string) =>
-    api.get<{ permissions: Permission[] }>(`/documents/${id}/permissions`).then(r => ({ data: r.data.permissions })),
+    api.get<{ permissions: Permission[]; owner: { id: string; display_name: string; email: string } | null }>(`/documents/${id}/permissions`).then(r => r.data),
 
   addDocumentPermission: (id: string, data: { userId?: string; role?: string; level: 'viewer' | 'editor' | 'manager' }) =>
     api.post<Permission>(`/documents/${id}/permissions`, data),

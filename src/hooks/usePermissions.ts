@@ -6,7 +6,7 @@ export function useDocumentPermissions(documentId: string | null) {
   return useQuery({
     queryKey: ['document-permissions', documentId],
     queryFn: () =>
-      documentsApi.getDocumentPermissions(documentId!).then((res) => res.data),
+      documentsApi.getDocumentPermissions(documentId!),
     enabled: !!documentId,
     staleTime: 60 * 1000,
     refetchInterval: 30 * 1000,
