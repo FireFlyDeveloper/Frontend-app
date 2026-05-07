@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Shield, Plus, Trash2, User, Users } from 'lucide-react'
 import { useDocumentPermissions, useAddDocumentPermission, useRemoveDocumentPermission } from '@/hooks/usePermissions'
 import { useFolderPermissions, useAddFolderPermission, useRemoveFolderPermission } from '@/hooks/usePermissions'
 import { useUsers } from '@/hooks/useUsers'
+import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
@@ -34,11 +35,21 @@ export function PermissionEditor({ type, id }: PermissionEditorProps) {
 
   const owner = type === 'document' ? (docPerms.data as any)?.owner : null
   const permissions: any[] = data?.permissions || []
+  const currentUser = useAuthStore((state) => state.user)
 
   // Filter out owner's own permission entries (they own it anyway)
   const sharedPermissions = owner
     ? permissions.filter((p) => p.user_id !== owner.id)
     : permissions
+
+  // IDs to exclude from the "Add user" dropdown
+  const excludedUserIds = useMemo(() => {
+    const ids = new Set<string>()
+    if (currentUser?.id) ids.add(currentUser.id)
+    if (owner?.id) ids.add(owner.id)
+    sharedPermissions.forEach((p) => { if (p.user_id) ids.add(p.user_id) })
+    return ids
+  }, [currentUser?.id, owner?.id, sharedPermissions])
 
   const handleAdd = () => {
     const payload = grantType === 'user'
@@ -171,7 +182,9 @@ export function PermissionEditor({ type, id }: PermissionEditorProps) {
               className="flex-1"
             >
               <option value="">Select user...</option>
-              {usersQuery.data?.users?.map((user: any) => (
+              {usersQuery.data?.users
+                ?.filter((user: any) => !excludedUserIds.has(user.id))
+                .map((user: any) => (
                 <option key={user.id} value={user.id}>
                   {user.display_name} ({user.email})
                 </option>
