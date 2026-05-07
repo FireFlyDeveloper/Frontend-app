@@ -25,8 +25,10 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
     setShowCamera(false)
     setCameraError(null)
     if (scannerRef.current) {
-      try { await scannerRef.current.stop() } catch { /* already stopped */ }
-      scannerRef.current.clear()
+      try {
+        await scannerRef.current.stop()
+        scannerRef.current.clear()
+      } catch { /* already stopped */ }
       scannerRef.current = null
     }
   }, [])
@@ -34,8 +36,9 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        try { scannerRef.current.stop() } catch { /* ignore */ }
-        scannerRef.current.clear()
+        scannerRef.current.stop().then(() => {
+          scannerRef.current?.clear()
+        }).catch(() => {})
         scannerRef.current = null
       }
     }
@@ -75,8 +78,9 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
 
     return () => {
       cancelled = true
-      scanner.stop().catch(() => {})
-      scanner.clear()
+      scanner.stop().then(() => {
+        scanner.clear()
+      }).catch(() => {})
       if (scannerRef.current === scanner) scannerRef.current = null
     }
   }, [showCamera, onScan, stopCamera])
