@@ -5,8 +5,6 @@ import {
   ArrowLeft,
   Plus,
   Package,
-  ChevronDown,
-  ChevronRight,
   User,
   CheckCircle,
   Mail,
@@ -25,93 +23,81 @@ import { ItemLot, Item } from '@/types/inventory'
 
 // ── Sub-components ─────────────────────────────────────────────────
 
-function LotRow({
-  lot,
-  onAdd,
-}: {
+interface CartItem {
   lot: ItemLot
-  onAdd: (lot: ItemLot) => void
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-md border p-2 text-sm">
-      <div className="min-w-0">
-        <p className="font-medium truncate">{lot.lot_code}</p>
-        <p className="text-xs text-muted-foreground">
-          Available: {lot.quantity_on_hand}
-        </p>
-      </div>
-      <Button
-        size="sm"
-        variant="outline"
-        className="h-7 px-2 shrink-0"
-        disabled={lot.quantity_on_hand <= 0}
-        onClick={() => onAdd(lot)}
-      >
-        <Plus className="h-3.5 w-3.5 mr-1" />
-        Add
-      </Button>
-    </div>
-  )
+  quantity: number
 }
 
-function ItemWithLots({
+function ItemRow({
   item,
-  onAddLot,
+  cart,
+  onAddToCart,
 }: {
   item: Item
-  onAddLot: (lot: ItemLot) => void
+  cart: CartItem[]
+  onAddToCart: (item: Item, lots: ItemLot[], qty: number) => void
 }) {
-  const [expanded, setExpanded] = useState(false)
   const { data: lots, isLoading } = useQuery({
     queryKey: ['public-lots', item.id],
     queryFn: () =>
       inventoryApi.getPublicLots(item.id).then((res) => res.data.lots),
-    enabled: expanded,
     staleTime: 60 * 1000,
   })
 
+  const [qty, setQty] = useState(1)
   const availableLots = lots?.filter((l) => l.quantity_on_hand > 0) ?? []
+  const totalAvailable = availableLots.reduce((s, l) => s + l.quantity_on_hand, 0)
+
+  // Count how many of this item are already in cart
+  const itemLotIds = new Set(lots?.map((l) => l.id) ?? [])
+  const inCartQty = cart
+    .filter((c) => itemLotIds.has(c.lot.id))
+    .reduce((s, c) => s + c.quantity, 0)
+  const remaining = totalAvailable - inCartQty
 
   return (
-    <div className="rounded-lg border">
-      <button
-        className="flex items-center justify-between w-full p-3 text-left hover:bg-accent/50 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <div className="flex items-center gap-3 min-w-0">
+    <div className="rounded-lg border p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{item.name}</p>
-            {item.sku && (
-              <p className="text-xs font-mono text-primary truncate">{item.sku}</p>
-            )}
-            {item.description && !item.sku && (
-              <p className="text-xs text-muted-foreground truncate">{item.description}</p>
-            )}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {item.sku && <span className="font-mono text-primary">{item.sku}</span>}
+              {isLoading ? (
+                <span>Loading stock...</span>
+              ) : (
+                <span>Available: <strong>{remaining}</strong></span>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {expanded ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
+          <Input
+            type="number"
+            min={1}
+            max={Math.max(0, remaining)}
+            value={qty}
+            onChange={(e) => setQty(Math.max(1, Math.min(remaining, parseInt(e.target.value) || 1)))}
+            className="w-16 h-8 text-center"
+            disabled={remaining <= 0 || isLoading}
+          />
+          <Button
+            size="sm"
+            className="h-8 shrink-0"
+            disabled={remaining <= 0 || isLoading || qty < 1}
+            onClick={() => {
+              if (lots) {
+                onAddToCart(item, lots, qty)
+                setQty(1)
+              }
+            }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add
+          </Button>
         </div>
-      </button>
-
-      {expanded && (
-        <div className="px-3 pb-3 space-y-2">
-          {isLoading ? (
-            <Skeleton className="h-10" />
-          ) : availableLots.length > 0 ? (
-            availableLots.map((lot) => (
-              <LotRow key={lot.id} lot={lot} onAdd={onAddLot} />
-            ))
-          ) : (
-            <p className="text-xs text-muted-foreground py-1">No available lots</p>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -183,13 +169,6 @@ function StudentInfoForm({
   )
 }
 
-// ── Cart item type ─────────────────────────────────────────────────
-
-interface CartItem {
-  lot: ItemLot
-  quantity: number
-}
-
 // ── Main page component ────────────────────────────────────────────
 
 type Step = 'browse' | 'info' | 'review'
@@ -218,22 +197,39 @@ export function PublicBorrowPage() {
     staleTime: 60 * 1000,
   })
 
-  const addLotToCart = useCallback(
-    (lot: ItemLot) => {
+  const addToCart = useCallback(
+    (item: Item, lots: ItemLot[], qty: number) => {
+      const available = lots.filter((l) => l.quantity_on_hand > 0)
+      if (available.length === 0) return
+
+      // Distribute qty across available lots
+      let remaining = qty
+      const additions: { lot: ItemLot; quantity: number }[] = []
+
+      for (const lot of available) {
+        if (remaining <= 0) break
+        const take = Math.min(remaining, lot.quantity_on_hand)
+        additions.push({ lot, quantity: take })
+        remaining -= take
+      }
+
+      if (remaining > 0) {
+        addToast({ message: `Only ${qty - remaining} of ${qty} available for ${item.name}`, type: 'warning' })
+      }
+
       setCart((prev) => {
-        const existing = prev.find((c) => c.lot.id === lot.id)
-        if (existing) {
-          if (existing.quantity >= lot.quantity_on_hand) {
-            addToast({ message: 'Maximum available quantity reached', type: 'warning' })
-            return prev
+        const next = [...prev]
+        for (const add of additions) {
+          const existing = next.find((c) => c.lot.id === add.lot.id)
+          if (existing) {
+            existing.quantity += add.quantity
+          } else {
+            next.push(add)
           }
-          return prev.map((c) =>
-            c.lot.id === lot.id ? { ...c, quantity: c.quantity + 1 } : c
-          )
         }
-        return [...prev, { lot, quantity: 1 }]
+        return next
       })
-      addToast({ message: `Added ${lot.lot_code}`, type: 'success' })
+      addToast({ message: `Added ${item.name} (×${qty})`, type: 'success' })
     },
     [addToast]
   )
@@ -351,10 +347,11 @@ export function PublicBorrowPage() {
                   ) : items && items.length > 0 ? (
                     <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                       {items.map((item) => (
-                        <ItemWithLots
+                        <ItemRow
                           key={item.id}
                           item={item}
-                          onAddLot={addLotToCart}
+                          cart={cart}
+                          onAddToCart={addToCart}
                         />
                       ))}
                     </div>
