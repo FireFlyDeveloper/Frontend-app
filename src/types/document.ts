@@ -17,6 +17,7 @@ export interface DocumentFile {
   created_at: string;
   updated_at: string;
   version: number;
+  user_permission?: 'viewer' | 'editor' | 'manager';
 }
 
 export interface DocumentVersion {

@@ -19,6 +19,9 @@ export const documentsApi = {
     api.get<{ documents: DocumentFile[] }>(`/folders/${id}/documents`).then(r => ({ data: r.data.documents })),
 
   // Documents
+  getAllDocuments: () =>
+    api.get<{ documents: DocumentFile[] }>('/documents').then(r => ({ data: r.data.documents })),
+
   checkDuplicate: (folderId: string, name: string) =>
     api.get<{ exists: boolean; document?: { id: string; name: string; size_bytes: number; updated_at: string } }>(
       '/documents/check-duplicate',

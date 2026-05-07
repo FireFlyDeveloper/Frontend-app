@@ -64,7 +64,7 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {selectedDocumentId === doc.id && onEdit && (
+            {selectedDocumentId === doc.id && onEdit && doc.user_permission !== 'viewer' && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -95,7 +95,7 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
                 <Download className="h-4 w-4" />
               )}
             </Button>
-            {selectedDocumentId === doc.id && onRename && (
+            {selectedDocumentId === doc.id && onRename && doc.user_permission !== 'viewer' && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -108,7 +108,7 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
                 <Pencil className="h-4 w-4" />
               </Button>
             )}
-            {selectedDocumentId === doc.id && onManagePermissions && (
+            {selectedDocumentId === doc.id && onManagePermissions && doc.user_permission !== 'viewer' && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -121,7 +121,7 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
                 <Shield className="h-4 w-4" />
               </Button>
             )}
-            {selectedDocumentId === doc.id && onDelete && (
+            {selectedDocumentId === doc.id && onDelete && doc.user_permission !== 'viewer' && (
               <Button
                 variant="ghost"
                 size="icon"

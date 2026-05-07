@@ -192,7 +192,7 @@ export function DocumentManagerPage() {
 
           <div className="rounded-lg border bg-card p-4">
             <h3 className="text-sm font-semibold mb-3">
-              {isSearching ? 'Search Results' : (selectedFolderId ? 'Documents' : 'Select a folder to view documents')}
+              {isSearching ? 'Search Results' : 'Documents'}
             </h3>
             <FileList
               documents={displayDocuments}

@@ -6,8 +6,10 @@ export function useDocuments(folderId: string | null) {
   return useQuery({
     queryKey: ['documents', folderId],
     queryFn: () =>
-      documentsApi.getFolderDocuments(folderId!).then((res) => res.data),
-    enabled: !!folderId,
+      folderId
+        ? documentsApi.getFolderDocuments(folderId).then((res) => res.data)
+        : documentsApi.getAllDocuments().then((res) => res.data),
+    enabled: true,
     staleTime: 60 * 1000,
     refetchInterval: 30 * 1000,
   })
