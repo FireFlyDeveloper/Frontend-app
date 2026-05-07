@@ -65,6 +65,27 @@ export function CheckoutHistoryPage() {
   const canCancel = (status: CheckoutStatus) => status === 'open' || status === 'pending_approval'
   const canApprove = (status: CheckoutStatus) => status === 'pending_approval'
 
+  function renderNotes(notes: string | null | undefined) {
+    if (!notes) return null
+    try {
+      const parsed = JSON.parse(notes)
+      if (parsed.name && parsed.email) {
+        return (
+          <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+            <p className="font-medium text-foreground/80">Borrower Info</p>
+            <p>Name: {parsed.name}</p>
+            <p>Email: {parsed.email}</p>
+            {parsed.srcode && <p>SR-Code: {parsed.srcode}</p>}
+            {parsed.course && <p>Course: {parsed.course}</p>}
+          </div>
+        )
+      }
+    } catch {
+      // Not JSON — show as plain text
+    }
+    return <p className="text-xs text-muted-foreground mt-1">{notes}</p>
+  }
+
   return (
     <PageShell title="Request History" description="View and manage requests">
       <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
@@ -123,9 +144,7 @@ export function CheckoutHistoryPage() {
                           Requested by: {txn.checked_out_by_name}
                         </p>
                       )}
-                      {txn.notes && (
-                        <p className="text-xs text-muted-foreground mt-1">{txn.notes}</p>
-                      )}
+                      {renderNotes(txn.notes)}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {isAdminOrStaff && canApprove(txn.status) && (
