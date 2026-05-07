@@ -123,30 +123,49 @@ export function PermissionEditor({ type, id }: PermissionEditorProps) {
 
       <div className="space-y-2 max-h-64 overflow-y-auto">
         {permissions && permissions.length > 0 ? (
-          permissions.map((perm) => (
-            <div
-              key={perm.id}
-              className="flex items-center justify-between rounded-md border p-3"
-            >
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">
-                  {perm.user ? perm.user.display_name : perm.role_id}
-                </span>
-                <Badge variant="secondary" className="capitalize text-xs">
-                  {perm.permission}
-                </Badge>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => handleRemove(perm.id)}
+          permissions.map((perm) => {
+            const isRole = !!perm.role_id
+            const levelColors: Record<string, string> = {
+              viewer: 'bg-blue-100 text-blue-700 border-blue-200',
+              editor: 'bg-amber-100 text-amber-700 border-amber-200',
+              manager: 'bg-green-100 text-green-700 border-green-200',
+            }
+            return (
+              <div
+                key={perm.id}
+                className="flex items-center justify-between rounded-md border p-3"
               >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))
+                <div className="flex items-center gap-2 min-w-0">
+                  <Shield className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {isRole ? 'Role' : 'User'}
+                  </span>
+                  <span className="text-sm font-medium truncate">
+                    {perm.user ? perm.user.display_name : perm.role_id}
+                  </span>
+                  {perm.user && (
+                    <span className="text-xs text-muted-foreground truncate hidden sm:inline">
+                      {perm.user.email}
+                    </span>
+                  )}
+                  <Badge
+                    variant="outline"
+                    className={`capitalize text-xs shrink-0 ${levelColors[perm.permission] || ''}`}
+                  >
+                    {perm.permission}
+                  </Badge>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0 ml-2"
+                  onClick={() => handleRemove(perm.id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )
+          })
         ) : (
           <p className="text-sm text-muted-foreground text-center py-4">
             No permissions set. Add permissions to control access.
