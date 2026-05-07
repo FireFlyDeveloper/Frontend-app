@@ -13,6 +13,9 @@ import {
 } from './pages/inventory'
 import {
   TrackingDashboardPage,
+  RoomsPage,
+  DevicesPage,
+  BleTagsPage,
 } from './pages/ble'
 import { UsersPage } from './pages/admin'
 import { AuditLogPage } from './pages/audit'
@@ -77,6 +80,30 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin', 'staff']}>
             <TrackingDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/rooms',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <RoomsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/devices',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DevicesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ble-tracking/tags',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <BleTagsPage />
           </ProtectedRoute>
         ),
       },
