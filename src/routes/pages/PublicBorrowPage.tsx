@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { inventoryApi } from '@/api/inventory'
 import { useUIStore } from '@/stores/uiStore'
+import { BarcodeScanner } from '@/components/inventory/BarcodeScanner'
 import { ItemLot, Item } from '@/types/inventory'
 
 // ── Sub-components ─────────────────────────────────────────────────
@@ -244,6 +245,39 @@ export function PublicBorrowPage() {
     setCart((prev) => prev.filter((c) => c.lot.id !== lotId))
   }, [])
 
+  const [scanning, setScanning] = useState(false)
+
+  const handleBarcodeScan = useCallback(
+    async (code: string) => {
+      if (!items) {
+        addToast({ message: 'Items not loaded yet', type: 'error' })
+        return
+      }
+      const match = items.find(
+        (i) => i.sku?.toLowerCase() === code.trim().toLowerCase()
+      )
+      if (!match) {
+        addToast({ message: `No item found with code: ${code}`, type: 'error' })
+        return
+      }
+      setScanning(true)
+      try {
+        const res = await inventoryApi.getPublicLots(match.id)
+        const lots = res.data.lots
+        if (lots.length === 0) {
+          addToast({ message: `${match.name} has no available lots`, type: 'warning' })
+          return
+        }
+        addToCart(match, lots, 1)
+      } catch {
+        addToast({ message: 'Failed to load item details', type: 'error' })
+      } finally {
+        setScanning(false)
+      }
+    },
+    [items, addToCart, addToast]
+  )
+
   const borrowMutation = useMutation({
     mutationFn: () =>
       inventoryApi.publicBorrow({
@@ -332,6 +366,11 @@ export function PublicBorrowPage() {
                   <CardTitle className="text-base">Available Items</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
+                  <BarcodeScanner
+                    onScan={handleBarcodeScan}
+                    isLoading={scanning}
+                    placeholder="Scan or enter barcode/SKU..."
+                  />
                   <Input
                     placeholder="Search items..."
                     value={itemSearch}
