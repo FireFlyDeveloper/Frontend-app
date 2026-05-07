@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/uiStore'
@@ -22,27 +23,40 @@ export function ToastContainer() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      {toasts.map((toast) => {
-        const Icon = iconMap[toast.type]
-        return (
-          <div
+      {toasts.map((toast) => (
+          <ToastItem
             key={toast.id}
-            className={cn(
-              'flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg min-w-[300px] max-w-md',
-              colorMap[toast.type]
-            )}
-          >
-            <Icon className="h-5 w-5 shrink-0" />
-            <p className="text-sm font-medium flex-1">{toast.message}</p>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="shrink-0 rounded-md p-1 hover:bg-black/5"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )
-      })}
+            toast={toast}
+            onDismiss={() => removeToast(toast.id)}
+          />
+        ))}
+    </div>
+  )
+}
+
+function ToastItem({ toast, onDismiss }: { toast: { id: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }; onDismiss: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 4000)
+    return () => clearTimeout(timer)
+  }, [onDismiss])
+
+  const Icon = iconMap[toast.type]
+
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg min-w-[300px] max-w-md animate-in slide-in-from-right',
+        colorMap[toast.type]
+      )}
+    >
+      <Icon className="h-5 w-5 shrink-0" />
+      <p className="text-sm font-medium flex-1">{toast.message}</p>
+      <button
+        onClick={onDismiss}
+        className="shrink-0 rounded-md p-1 hover:bg-black/5"
+      >
+        <X className="h-4 w-4" />
+      </button>
     </div>
   )
 }
