@@ -3,6 +3,7 @@ import { FolderPlus, Search, Home, ChevronRight } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
 import { FileList } from '@/components/documents/FileList'
+import { OnlyOfficeEditor } from '@/components/documents/OnlyOfficeEditor'
 import { FileUploadZone } from '@/components/documents/FileUploadZone'
 import { PermissionEditor } from '@/components/documents/PermissionEditor'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,7 @@ export function DocumentManagerPage() {
   const [renameValue, setRenameValue] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [viewDocument, setViewDocument] = useState<DocumentFile | null>(null)
+  const [editingDocument, setEditingDocument] = useState<DocumentFile | null>(null)
 
   const { data: folders, isLoading: foldersLoading } = useFolders()
   const { data: documents, isLoading: documentsLoading } = useDocuments(selectedFolderId)
@@ -176,6 +178,7 @@ export function DocumentManagerPage() {
               selectedDocumentId={selectedDocumentId}
               onSelectDocument={setSelectedDocumentId}
               onView={(doc) => setViewDocument(doc)}
+              onEdit={(doc) => setEditingDocument(doc)}
               onRename={(doc) => {
                 setRenameValue(doc.name)
                 setShowRename(true)
@@ -302,6 +305,13 @@ export function DocumentManagerPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {editingDocument && (
+        <OnlyOfficeEditor
+          docId={editingDocument.id}
+          docName={editingDocument.name}
+          onClose={() => setEditingDocument(null)}
+        />
+      )}
     </PageShell>
   )
 }

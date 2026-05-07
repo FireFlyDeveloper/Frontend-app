@@ -21,12 +21,14 @@ export function useUploadDocument() {
     mutationFn: ({
       folderId,
       file,
+      conflict,
       onProgress,
     }: {
       folderId: string
       file: File
+      conflict?: 'replace' | 'duplicate'
       onProgress?: (progress: number) => void
-    }) => documentsApi.uploadDocument(folderId, file, onProgress).then((res) => res.data),
+    }) => documentsApi.uploadDocument(folderId, file, conflict, onProgress).then((res) => res.data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['documents', variables.folderId],
@@ -120,5 +122,12 @@ export function useRenameDocument() {
     onError: () => {
       addToast({ message: 'Failed to rename document', type: 'error' })
     },
+  })
+}
+
+export function useCheckDuplicate() {
+  return useMutation({
+    mutationFn: ({ folderId, name }: { folderId: string; name: string }) =>
+      documentsApi.checkDuplicate(folderId, name),
   })
 }

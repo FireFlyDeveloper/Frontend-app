@@ -19,12 +19,21 @@ export const documentsApi = {
     api.get<{ documents: DocumentFile[] }>(`/folders/${id}/documents`).then(r => ({ data: r.data.documents })),
 
   // Documents
-  uploadDocument: (folderId: string, file: File, onProgress?: (progress: number) => void) => {
+  checkDuplicate: (folderId: string, name: string) =>
+    api.get<{ exists: boolean; document?: { id: string; name: string; size_bytes: number; updated_at: string } }>(
+      '/documents/check-duplicate',
+      { params: { folder_id: folderId, name } }
+    ).then(r => r.data),
+
+  uploadDocument: (folderId: string, file: File, conflict?: 'replace' | 'duplicate', onProgress?: (progress: number) => void) => {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('folderId', folderId)
+    const params: Record<string, string> = {}
+    if (conflict) params.conflict = conflict
     return api.post<DocumentFile>('/documents/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      params,
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           onProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total))
@@ -68,4 +77,8 @@ export const documentsApi = {
 
   removeFolderPermission: (id: string, permissionId: string) =>
     api.delete(`/folders/${id}/permissions/${permissionId}`),
+
+  // ONLYOFFICE
+  getOnlyOfficeConfig: (docId: string) =>
+    api.post<{ config: any }>(`/onlyoffice/config/${docId}`).then(r => r.data.config),
 }
