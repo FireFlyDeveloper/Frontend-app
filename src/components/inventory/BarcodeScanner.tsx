@@ -19,76 +19,75 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
   const [scanning, setScanning] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const scannerRef = useRef<Html5Qrcode | null>(null)
+  const startingRef = useRef(false)
 
   const stopCamera = useCallback(async () => {
     setScanning(false)
     setShowCamera(false)
     setCameraError(null)
-    if (scannerRef.current) {
+    const s = scannerRef.current
+    scannerRef.current = null
+    startingRef.current = false
+    if (s) {
       try {
-        await scannerRef.current.stop()
-        scannerRef.current.clear()
+        await s.stop()
+        s.clear()
       } catch { /* already stopped */ }
+    }
+  }, [])
+
+  // Unmount cleanup only — no dependency on showCamera
+  useEffect(() => {
+    return () => {
+      startingRef.current = false
+      const s = scannerRef.current
       scannerRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().then(() => {
-          scannerRef.current?.clear()
-        }).catch(() => {})
-        scannerRef.current = null
+      if (s) {
+        s.stop().then(() => s.clear()).catch(() => {})
       }
     }
   }, [])
 
-  // Start/stop scanner based on showCamera state
-  useEffect(() => {
-    if (!showCamera) return
-
-    const el = document.getElementById(SCANNER_ID)
-    if (!el) return // not mounted yet — wait for next render
-
-    let cancelled = false
-    const scanner = new Html5Qrcode(SCANNER_ID)
-    scannerRef.current = scanner
-
-    scanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      (decodedText) => {
-        if (!cancelled) {
-          stopCamera()
-          onScan(decodedText.trim())
-        }
-      },
-      () => { /* keep scanning */ }
-    ).then(() => {
-      if (!cancelled) setScanning(true)
-    }).catch((err: any) => {
-      if (!cancelled) {
-        console.error('Camera error:', err)
-        setCameraError(err?.message || 'Could not access camera')
-        setScanning(false)
-        scannerRef.current = null
-      }
-    })
-
-    return () => {
-      cancelled = true
-      scanner.stop().then(() => {
-        scanner.clear()
-      }).catch(() => {})
-      if (scannerRef.current === scanner) scannerRef.current = null
-    }
-  }, [showCamera, onScan, stopCamera])
-
-  const startCamera = () => {
+  const startCamera = async () => {
+    if (startingRef.current) return // already starting
+    startingRef.current = true
     setCameraError(null)
     setScanning(false)
     setShowCamera(true)
+
+    // Wait a tick so React renders the container div
+    await new Promise((r) => setTimeout(r, 50))
+
+    const el = document.getElementById(SCANNER_ID)
+    if (!el) {
+      setCameraError('Scanner element not found')
+      startingRef.current = false
+      setShowCamera(false)
+      return
+    }
+
+    const scanner = new Html5Qrcode(SCANNER_ID)
+    scannerRef.current = scanner
+
+    try {
+      await scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+          stopCamera()
+          onScan(decodedText.trim())
+        },
+        () => { /* keep scanning */ }
+      )
+      setScanning(true)
+    } catch (err: any) {
+      console.error('Camera error:', err)
+      setCameraError(err?.message || 'Could not access camera')
+      setScanning(false)
+      scannerRef.current = null
+    } finally {
+      startingRef.current = false
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -127,7 +126,7 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
         </Button>
       </form>
 
-      {/* Camera viewfinder — always rendered but hidden via CSS to keep DOM element available */}
+      {/* Camera viewfinder */}
       <div
         className={`relative mt-2 rounded-lg overflow-hidden border border-border bg-black transition-opacity ${
           showCamera ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden p-0 m-0 border-0'
@@ -135,7 +134,6 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
         style={showCamera ? { minHeight: 240 } : undefined}
       >
         <div id={SCANNER_ID} className="w-full" style={{ minHeight: 240 }} />
-        {/* Scanning overlay */}
         {showCamera && (
           <>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
