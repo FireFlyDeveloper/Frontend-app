@@ -63,32 +63,6 @@ const navItems: NavItem[] = [
     path: '/ble-tracking',
     icon: <Bluetooth className="h-5 w-5" />,
     roles: ['admin', 'staff'],
-    children: [
-      {
-        label: 'Dashboard',
-        path: '/ble-tracking',
-        icon: <LayoutDashboard className="h-4 w-4" />,
-        roles: ['admin', 'staff'],
-      },
-      {
-        label: 'Rooms',
-        path: '/ble-tracking/rooms',
-        icon: <Package className="h-4 w-4" />,
-        roles: ['admin'],
-      },
-      {
-        label: 'Devices',
-        path: '/ble-tracking/devices',
-        icon: <Bluetooth className="h-4 w-4" />,
-        roles: ['admin'],
-      },
-      {
-        label: 'Tags',
-        path: '/ble-tracking/tags',
-        icon: <Bluetooth className="h-4 w-4" />,
-        roles: ['admin'],
-      },
-    ],
   },
   {
     label: 'Audit Logs',
