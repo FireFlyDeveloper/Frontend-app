@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Scan, Camera, CameraOff, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Html5Qrcode } from 'html5-qrcode'
 
 interface BarcodeScannerProps {
   onScan: (code: string) => void
@@ -9,101 +10,81 @@ interface BarcodeScannerProps {
   placeholder?: string
 }
 
+const SCANNER_ID = 'hermes-qr-scanner'
+
 export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter barcode/QR...' }: BarcodeScannerProps) {
   const [code, setCode] = useState('')
   const [showCamera, setShowCamera] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
-  const [detecting, setDetecting] = useState(false)
+  const [scanning, setScanning] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const detectionTimerRef = useRef<number | null>(null)
+  const scannerRef = useRef<Html5Qrcode | null>(null)
 
-  const stopCamera = useCallback(() => {
-    if (detectionTimerRef.current) {
-      clearInterval(detectionTimerRef.current)
-      detectionTimerRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null
-    }
+  const stopCamera = useCallback(async () => {
+    setScanning(false)
     setShowCamera(false)
-    setDetecting(false)
+    setCameraError(null)
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop()
+      } catch {
+        // already stopped
+      }
+      scannerRef.current.clear()
+      scannerRef.current = null
+    }
   }, [])
 
   useEffect(() => {
     return () => {
       // Cleanup on unmount
-      if (detectionTimerRef.current) clearInterval(detectionTimerRef.current)
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop())
+      if (scannerRef.current) {
+        try { scannerRef.current.stop() } catch { /* ignore */ }
+        scannerRef.current.clear()
+        scannerRef.current = null
       }
     }
   }, [])
 
   const startCamera = async () => {
     setCameraError(null)
-    setDetecting(false)
+    setScanning(false)
+
+    // Ensure the scanner div exists
+    const existingEl = document.getElementById(SCANNER_ID)
+    if (!existingEl) {
+      const div = document.createElement('div')
+      div.id = SCANNER_ID
+      div.style.display = 'none'
+      document.body.appendChild(div)
+    }
+
+    const scanner = new Html5Qrcode(SCANNER_ID)
+    scannerRef.current = scanner
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      })
-      streamRef.current = stream
+      await scanner.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          // On success — auto-stop and fire callback
+          stopCamera()
+          onScan(decodedText.trim())
+        },
+        () => {
+          // On failure to decode a frame — keep trying
+        }
+      )
+      setScanning(true)
       setShowCamera(true)
-
-      // Wait for next render so videoRef is attached
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          videoRef.current.play().then(() => startDetection()).catch(() => setCameraError('Failed to play video'))
-        }
-      }, 100)
     } catch (err: any) {
-      console.error('Camera access error:', err)
+      console.error('Camera error:', err)
       setCameraError(err?.message || 'Could not access camera')
+      scannerRef.current = null
     }
-  }
-
-  const startDetection = () => {
-    // Check if BarcodeDetector API is available
-    const BarcodeDetectorApi = (window as any).BarcodeDetector
-    if (!BarcodeDetectorApi) {
-      // Fallback: BarcodeDetector not available in this browser.
-      // The user can type the code manually in the text input.
-      setDetecting(false)
-      return
-    }
-
-    setDetecting(true)
-
-    // Try to create detector with supported formats
-    const barcodeDetector = new BarcodeDetectorApi({
-      formats: ['qr_code', 'ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'data_matrix', 'pdf417', 'aztec', 'codabar', 'itf', 'code_93'],
-    })
-
-    detectionTimerRef.current = window.setInterval(async () => {
-      if (!videoRef.current || !streamRef.current) return
-      if (videoRef.current.readyState < 2) return // not enough data
-
-      try {
-        const barcodes = await barcodeDetector.detect(videoRef.current)
-        if (barcodes.length > 0) {
-          const detectedCode = barcodes[0].rawValue
-          if (detectedCode && detectedCode.trim()) {
-            stopCamera()
-            onScan(detectedCode.trim())
-          }
-        }
-      } catch (err) {
-        // Detection error — often temporary, keep trying
-        console.debug('Detection error:', err)
-      }
-    }, 500)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -142,16 +123,10 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
         </Button>
       </form>
 
-      {/* Camera overlay */}
+      {/* Camera viewfinder */}
       {showCamera && (
-        <div className="relative mt-2 rounded-lg overflow-hidden border border-border bg-black">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-48 sm:h-64 object-cover"
-          />
+        <div className="relative mt-2 rounded-lg overflow-hidden border border-border bg-black" style={{ minHeight: 240 }}>
+          <div id={SCANNER_ID} className="w-full" style={{ minHeight: 240 }} />
           {/* Scanning overlay */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-40 h-40 sm:w-48 sm:h-48 border-2 border-primary/60 rounded-lg">
@@ -162,30 +137,17 @@ export function BarcodeScanner({ onScan, isLoading, placeholder = 'Scan or enter
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
             <div className="flex items-center justify-between">
               <span className="text-xs text-white">
-                {detecting ? 'Detecting...' : cameraError ? 'Camera error' : (window as any).BarcodeDetector ? 'Camera ready' : 'Auto-scan unavailable — type code below'}
+                {scanning ? 'Scanning...' : cameraError ? 'Camera error' : 'Starting camera...'}
               </span>
-              <div className="flex gap-2">
-                {(window as any).BarcodeDetector && !detecting && !cameraError && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="text-xs h-6"
-                    onClick={startDetection}
-                  >
-                    Start Detection
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="text-xs h-6"
-                  onClick={stopCamera}
-                >
-                  Close
-                </Button>
-              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="text-xs h-6"
+                onClick={stopCamera}
+              >
+                Close
+              </Button>
             </div>
             {cameraError && (
               <p className="text-xs text-red-300 mt-1">{cameraError}</p>
