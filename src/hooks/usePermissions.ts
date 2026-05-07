@@ -25,11 +25,14 @@ export function useAddDocumentPermission() {
       documentId: string
       data: { userId?: string; role?: string; level: 'viewer' | 'editor' | 'manager' }
     }) => documentsApi.addDocumentPermission(documentId, data).then((res) => res.data),
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['document-permissions', variables.documentId],
       })
-      addToast({ message: 'Permission added', type: 'success' })
+      addToast({
+        message: (result as any).created === false ? 'Permission updated' : 'Permission added',
+        type: 'success',
+      })
     },
     onError: () => {
       addToast({ message: 'Failed to add permission', type: 'error' })
@@ -84,11 +87,14 @@ export function useAddFolderPermission() {
       folderId: string
       data: { userId?: string; role?: string; level: 'viewer' | 'editor' | 'manager' }
     }) => documentsApi.addFolderPermission(folderId, data).then((res) => res.data),
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['folder-permissions', variables.folderId],
       })
-      addToast({ message: 'Permission added', type: 'success' })
+      addToast({
+        message: (result as any).created === false ? 'Permission updated' : 'Permission added',
+        type: 'success',
+      })
     },
     onError: () => {
       addToast({ message: 'Failed to add permission', type: 'error' })

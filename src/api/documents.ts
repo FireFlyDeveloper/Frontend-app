@@ -64,7 +64,7 @@ export const documentsApi = {
     api.get<{ permissions: Permission[]; owner: { id: string; display_name: string; email: string } | null }>(`/documents/${id}/permissions`).then(r => r.data),
 
   addDocumentPermission: (id: string, data: { userId?: string; role?: string; level: 'viewer' | 'editor' | 'manager' }) =>
-    api.post<Permission>(`/documents/${id}/permissions`, data),
+    api.post<{ permission: Permission; created: boolean }>(`/documents/${id}/permissions`, data),
 
   removeDocumentPermission: (id: string, permissionId: string) =>
     api.delete(`/documents/${id}/permissions/${permissionId}`),
@@ -73,7 +73,7 @@ export const documentsApi = {
     api.get<{ permissions: Permission[] }>(`/folders/${id}/permissions`).then(r => ({ data: r.data.permissions })),
 
   addFolderPermission: (id: string, data: { userId?: string; role?: string; level: 'viewer' | 'editor' | 'manager' }) =>
-    api.post<Permission>(`/folders/${id}/permissions`, data),
+    api.post<{ permission: Permission; created: boolean }>(`/folders/${id}/permissions`, data),
 
   removeFolderPermission: (id: string, permissionId: string) =>
     api.delete(`/folders/${id}/permissions/${permissionId}`),
