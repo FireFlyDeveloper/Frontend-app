@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { Upload, Loader2, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useUploadDocument, useCheckDuplicate } from '@/hooks/useDocuments'
@@ -22,8 +22,6 @@ export function FileUploadZone({ folderId }: FileUploadZoneProps) {
   const [conflictFile, setConflictFile] = useState<{ file: File; existingName: string } | null>(null)
   const upload = useUploadDocument()
   const checkDuplicate = useCheckDuplicate()
-  const pendingUploads = useRef<File[]>([])
-
   const processFile = useCallback(
     (file: File) => {
       if (!folderId) return

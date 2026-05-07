@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X, Loader2 } from 'lucide-react'
+import { DocumentEditor } from '@onlyoffice/document-editor-react'
 import { Button } from '@/components/ui/button'
 import { documentsApi } from '@/api/documents'
 
@@ -11,47 +12,33 @@ interface OnlyOfficeEditorProps {
 
 export function OnlyOfficeEditor({ docId, docName, onClose }: OnlyOfficeEditorProps) {
   const [config, setConfig] = useState<any>(null)
+  const [documentServerUrl, setDocumentServerUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     documentsApi.getOnlyOfficeConfig(docId)
-      .then(setConfig)
+      .then((data) => {
+        setConfig(data.config)
+        setDocumentServerUrl(data.documentServerUrl)
+      })
       .catch((err) => setError(err?.message || 'Failed to initialize editor'))
   }, [docId])
 
-  useEffect(() => {
-    if (!config) return
-
-    // Give the DOM time to mount the container
-    const timer = setTimeout(() => {
-      const container = document.getElementById('onlyoffice-editor')
-      if (!container || !(window as any).DocsAPI) {
-        // DocsAPI not loaded — load it dynamically
-        const script = document.createElement('script')
-        script.src = `${new URL(config.docService.url).origin}/web-apps/apps/api/documents/api.js`
-        script.async = true
-        document.body.appendChild(script)
-        script.onload = () => initEditor()
-        return
-      }
-      initEditor()
-    }, 100)
-
-    function initEditor() {
-      const container = document.getElementById('onlyoffice-editor')
-      if (!container || !(window as any).DocsAPI) {
-        setError('ONLYOFFICE editor could not be loaded')
-        return
-      }
-      try {
-        new (window as any).DocsAPI.DocEditor('onlyoffice-editor', config)
-      } catch (err: any) {
-        setError(err?.message || 'Failed to initialize editor')
-      }
+  function handleLoadComponentError(errorCode: number, errorDescription: string) {
+    switch (errorCode) {
+      case -1:
+        setError(`Unknown error loading ONLYOFFICE: ${errorDescription}`)
+        break
+      case -2:
+        setError(`Failed to load DocsAPI from server: ${errorDescription}`)
+        break
+      case -3:
+        setError(`DocsAPI is not defined: ${errorDescription}`)
+        break
+      default:
+        setError(errorDescription)
     }
-
-    return () => clearTimeout(timer)
-  }, [config])
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col">
@@ -63,10 +50,18 @@ export function OnlyOfficeEditor({ docId, docName, onClose }: OnlyOfficeEditorPr
           Close Editor
         </Button>
       </div>
+
       {/* Editor area */}
       <div className="flex-1 relative">
-        {config ? (
-          <div id="onlyoffice-editor" className="w-full h-full" />
+        {config && documentServerUrl ? (
+          <DocumentEditor
+            id="onlyoffice-editor"
+            documentServerUrl={documentServerUrl}
+            config={config}
+            onLoadComponentError={handleLoadComponentError}
+            height="100%"
+            width="100%"
+          />
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <p className="text-lg font-medium mb-2">Editor Error</p>

@@ -29,7 +29,7 @@ export function DocumentManagerPage() {
   const [showRename, setShowRename] = useState(false)
   const [renameValue, setRenameValue] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [viewDocument, setViewDocument] = useState<DocumentFile | null>(null)
+  const [, setViewDocument] = useState<DocumentFile | null>(null)
   const [editingDocument, setEditingDocument] = useState<DocumentFile | null>(null)
 
   const { data: folders, isLoading: foldersLoading } = useFolders()

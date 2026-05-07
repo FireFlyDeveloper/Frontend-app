@@ -80,5 +80,5 @@ export const documentsApi = {
 
   // ONLYOFFICE
   getOnlyOfficeConfig: (docId: string) =>
-    api.post<{ config: any }>(`/onlyoffice/config/${docId}`).then(r => r.data.config),
+    api.post<{ config: any; documentServerUrl: string }>(`/onlyoffice/config/${docId}`).then(r => r.data),
 }

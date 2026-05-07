@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   ShoppingCart,
   ArrowLeft,
@@ -175,7 +174,6 @@ function StudentInfoForm({
 type Step = 'browse' | 'info' | 'review'
 
 export function PublicBorrowPage() {
-  const navigate = useNavigate()
   const addToast = useUIStore((state) => state.addToast)
 
   const [step, setStep] = useState<Step>('browse')
@@ -234,12 +232,6 @@ export function PublicBorrowPage() {
     },
     [addToast]
   )
-
-  const updateQuantity = useCallback((lotId: string, quantity: number) => {
-    setCart((prev) =>
-      prev.map((c) => (c.lot.id === lotId ? { ...c, quantity } : c))
-    )
-  }, [])
 
   const removeFromCart = useCallback((lotId: string) => {
     setCart((prev) => prev.filter((c) => c.lot.id !== lotId))
