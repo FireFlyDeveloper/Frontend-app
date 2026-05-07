@@ -9,11 +9,20 @@ interface StatCardProps {
   description?: string
   colorClass?: string
   isLoading?: boolean
+  onClick?: () => void
 }
 
-export function StatCard({ label, value, icon, description, colorClass, isLoading }: StatCardProps) {
+export function StatCard({ label, value, icon, description, colorClass, isLoading, onClick }: StatCardProps) {
   return (
-    <Card>
+    <Card
+      className={cn(
+        onClick && 'cursor-pointer transition-colors hover:bg-accent/50'
+      )}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } } : undefined}
+    >
       <CardContent className="p-4 flex items-center gap-4">
         <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0', colorClass || 'bg-primary/10 text-primary')}>
           {icon}

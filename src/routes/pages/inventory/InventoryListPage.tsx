@@ -56,9 +56,9 @@ export function InventoryListPage() {
         )
       }
     >
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      {/* Filters - Grid layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="relative sm:col-span-2 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search items..."
@@ -67,27 +67,27 @@ export function InventoryListPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setRoomFilter('') }}>
-            <option value="">All Types</option>
-            <option value="quantifiable">Quantifiable</option>
-            <option value="trackable">Trackable</option>
-          </Select>
-          <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="maintenance">Maintenance</option>
-          </Select>
-          {showRoomFilter && rooms && rooms.length > 0 && (
+        <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setRoomFilter('') }}>
+          <option value="">All Types</option>
+          <option value="quantifiable">Quantifiable</option>
+          <option value="trackable">Trackable</option>
+        </Select>
+        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="maintenance">Maintenance</option>
+        </Select>
+        {showRoomFilter && rooms && rooms.length > 0 && (
+          <div className="sm:col-span-2 lg:col-span-1">
             <Select value={roomFilter} onChange={(e) => setRoomFilter(e.target.value)}>
               <option value="">All Rooms</option>
               {rooms.map((room) => (
                 <option key={room.id} value={room.id}>{room.name}</option>
               ))}
             </Select>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Items Grid */}

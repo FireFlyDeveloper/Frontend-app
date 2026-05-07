@@ -15,6 +15,24 @@ const statusColors: Record<string, string> = {
   maintenance: 'bg-yellow-100 text-yellow-800',
 }
 
+/** Regex to detect if a string starts with an emoji character */
+const EMOJI_RE = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u
+
+function renderItemName(name: string) {
+  const match = name.match(EMOJI_RE)
+  if (!match) {
+    return <span>{name}</span>
+  }
+  const emoji = match[1]
+  const rest = name.slice(emoji.length).trim()
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="text-base leading-none shrink-0" aria-hidden="true">{emoji}</span>
+      <span className="truncate">{rest || emoji}</span>
+    </span>
+  )
+}
+
 export function ItemCard({ item, onClick }: ItemCardProps) {
   return (
     <Card
@@ -35,7 +53,7 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
               )}
             </div>
             <div className="min-w-0">
-              <p className="font-medium truncate">{item.name}</p>
+              <p className="font-medium truncate leading-snug">{renderItemName(item.name)}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="capitalize">{item.item_type}</span>
                 {item.category && <span>• {item.category}</span>}

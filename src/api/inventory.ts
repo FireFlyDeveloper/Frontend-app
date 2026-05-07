@@ -12,6 +12,7 @@ import {
   CheckoutInput,
   ReturnInput,
   CheckoutTransaction,
+  CheckoutLine,
 } from '@/types/inventory'
 
 export const inventoryApi = {
@@ -56,4 +57,14 @@ export const inventoryApi = {
 
   // Scan
   scanCode: (code: string) => api.post<ScanResult>('/checkout/scan', { code }),
+
+  // Public endpoints (no auth required)
+  getPublicItems: (params?: { search?: string }) =>
+    api.get<{ items: Item[] }>('/public/items', { params }),
+
+  getPublicLots: (itemId: string) =>
+    api.get<{ lots: ItemLot[] }>(`/public/items/${itemId}/lots`),
+
+  publicBorrow: (data: { srcode: string; email: string; name: string; course: string; lines: CheckoutLine[] }) =>
+    api.post<CheckoutResult>('/public/borrow', data),
 }

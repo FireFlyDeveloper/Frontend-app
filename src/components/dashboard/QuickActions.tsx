@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FolderOpen, Package, ShoppingCart, ClipboardList, Users, BarChart3 } from 'lucide-react'
+import { FolderOpen, Package, ShoppingCart, ClipboardList, BarChart3 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 export function QuickActions() {
@@ -9,11 +9,10 @@ export function QuickActions() {
   const user = useAuthStore((state) => state.user)
 
   const actions = [
-    { label: 'Documents', icon: <FolderOpen className="h-4 w-4" />, path: '/documents', roles: ['admin', 'staff', 'student'] },
-    { label: 'Inventory', icon: <Package className="h-4 w-4" />, path: '/inventory', roles: ['admin', 'staff', 'student'] },
-    { label: 'Checkout', icon: <ShoppingCart className="h-4 w-4" />, path: '/inventory/checkout', roles: ['admin', 'staff', 'student'] },
-    { label: 'Checkouts', icon: <ClipboardList className="h-4 w-4" />, path: '/inventory/checkouts', roles: ['admin', 'staff', 'student'] },
-    { label: 'Users', icon: <Users className="h-4 w-4" />, path: '/admin/users', roles: ['admin'] },
+    { label: 'Documents', icon: <FolderOpen className="h-4 w-4" />, path: '/documents', roles: ['admin', 'staff'] },
+    { label: 'Inventory', icon: <Package className="h-4 w-4" />, path: '/inventory', roles: ['admin', 'staff'] },
+    { label: 'Request', icon: <ShoppingCart className="h-4 w-4" />, path: '/inventory/checkout', roles: ['admin', 'staff'] },
+    { label: 'Requests', icon: <ClipboardList className="h-4 w-4" />, path: '/inventory/checkouts', roles: ['admin', 'staff'] },
     { label: 'Reports', icon: <BarChart3 className="h-4 w-4" />, path: '/reports', roles: ['admin'] },
   ]
 

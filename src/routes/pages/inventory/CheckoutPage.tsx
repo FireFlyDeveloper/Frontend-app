@@ -206,22 +206,17 @@ export function CheckoutPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          {/* Barcode Scanner */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Barcode Scanner</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <BarcodeScanner onScan={handleScan} isLoading={scanCode.isPending} />
-            </CardContent>
-          </Card>
-
-          {/* Browsable Item List */}
+          {/* Unified Barcode Scanner + Available Items */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Available Items</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
+              <BarcodeScanner
+                onScan={handleScan}
+                isLoading={scanCode.isPending}
+                placeholder="Scan or enter barcode/QR..."
+              />
               <Input
                 placeholder="Search quantifiable items..."
                 value={itemSearch}

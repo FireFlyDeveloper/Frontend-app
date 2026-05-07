@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
     label: 'Documents',
     path: '/documents',
     icon: <FolderOpen className="h-5 w-5" />,
-    roles: ['admin', 'staff', 'student'],
+    roles: ['admin', 'staff'],
   },
   {
     label: 'Inventory',
@@ -51,48 +51,22 @@ const navItems: NavItem[] = [
     roles: ['admin', 'staff', 'student'],
   },
   {
-    label: 'Checkout',
+    label: 'Request',
     path: '/inventory/checkout',
     icon: <ShoppingCart className="h-5 w-5" />,
-    roles: ['admin', 'staff', 'student'],
+    roles: ['admin', 'staff'],
   },
   {
-    label: 'Checkouts',
+    label: 'Requests',
     path: '/inventory/checkouts',
     icon: <ClipboardList className="h-5 w-5" />,
-    roles: ['admin', 'staff', 'student'],
+    roles: ['admin', 'staff'],
   },
   {
     label: 'BLE Tracking',
     path: '/ble-tracking',
     icon: <Bluetooth className="h-5 w-5" />,
     roles: ['admin', 'staff'],
-    children: [
-      {
-        label: 'Dashboard',
-        path: '/ble-tracking',
-        icon: <LayoutDashboard className="h-4 w-4" />,
-        roles: ['admin', 'staff'],
-      },
-      {
-        label: 'Rooms',
-        path: '/ble-tracking/rooms',
-        icon: <MapPin className="h-4 w-4" />,
-        roles: ['admin', 'staff'],
-      },
-      {
-        label: 'Devices',
-        path: '/ble-tracking/devices',
-        icon: <Radio className="h-4 w-4" />,
-        roles: ['admin', 'staff'],
-      },
-      {
-        label: 'Tags',
-        path: '/ble-tracking/tags',
-        icon: <Tag className="h-4 w-4" />,
-        roles: ['admin', 'staff'],
-      },
-    ],
   },
   {
     label: 'Audit Logs',
@@ -108,23 +82,9 @@ const navItems: NavItem[] = [
   },
   {
     label: 'Admin',
-    path: '/admin',
+    path: '/admin/users',
     icon: <Shield className="h-5 w-5" />,
     roles: ['admin'],
-    children: [
-      {
-        label: 'Overview',
-        path: '/admin',
-        icon: <LayoutDashboard className="h-4 w-4" />,
-        roles: ['admin'],
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        icon: <Users className="h-4 w-4" />,
-        roles: ['admin'],
-      },
-    ],
   },
 ]
 

@@ -96,7 +96,14 @@ export function CheckoutHistoryPage() {
             const status = statusConfig[txn.status]
             const isSelected = selectedCheckoutId === txn.id
             return (
-              <Card key={txn.id} className={cn(isSelected && 'border-primary')}>
+              <Card
+                key={txn.id}
+                className={cn(
+                  isSelected && 'border-primary',
+                  'cursor-pointer transition-colors hover:border-muted-foreground/30',
+                )}
+                onClick={() => setSelectedCheckoutId(isSelected ? null : txn.id)}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -111,6 +118,11 @@ export function CheckoutHistoryPage() {
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(txn.created_at).toLocaleString()}
                       </p>
+                      {txn.checked_out_by_name && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Requested by: {txn.checked_out_by_name}
+                        </p>
+                      )}
                       {txn.notes && (
                         <p className="text-xs text-muted-foreground mt-1">{txn.notes}</p>
                       )}
@@ -122,7 +134,7 @@ export function CheckoutHistoryPage() {
                             variant="outline"
                             size="sm"
                             className="text-green-600 border-green-200 hover:bg-green-50"
-                            onClick={() => approveCheckout.mutate(txn.id)}
+                            onClick={(e) => { e.stopPropagation(); approveCheckout.mutate(txn.id); }}
                             disabled={approveCheckout.isPending}
                           >
                             <ThumbsUp className="h-3 w-3 mr-1" />
@@ -132,7 +144,7 @@ export function CheckoutHistoryPage() {
                             variant="outline"
                             size="sm"
                             className="text-red-600 border-red-200 hover:bg-red-50"
-                            onClick={() => rejectCheckout.mutate(txn.id)}
+                            onClick={(e) => { e.stopPropagation(); rejectCheckout.mutate(txn.id); }}
                             disabled={rejectCheckout.isPending}
                           >
                             <ThumbsDown className="h-3 w-3 mr-1" />
@@ -144,7 +156,8 @@ export function CheckoutHistoryPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation()
                             setSelectedCheckoutId(isSelected ? null : txn.id)
                             setReturnQuantities({})
                           }}
@@ -159,7 +172,7 @@ export function CheckoutHistoryPage() {
                           variant="ghost"
                           size="sm"
                           className="text-destructive"
-                          onClick={() => cancelCheckout.mutate(txn.id)}
+                          onClick={(e) => { e.stopPropagation(); cancelCheckout.mutate(txn.id); }}
                           disabled={cancelCheckout.isPending}
                         >
                           <XCircle className="h-3 w-3 mr-1" />
@@ -168,6 +181,25 @@ export function CheckoutHistoryPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Checkout Items Summary (read-only) */}
+                  {isSelected && checkoutDetail && (
+                    <div className="mt-4 border-t pt-4 space-y-2">
+                      <h4 className="text-sm font-semibold">Items</h4>
+                      {checkoutDetail.items.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between rounded-lg border p-3">
+                          <div>
+                            <p className="text-sm font-medium">{item.item_name}</p>
+                            <p className="text-xs text-muted-foreground">Lot: {item.lot_code}</p>
+                          </div>
+                          <div className="text-right text-sm">
+                            <p>Checked out: {item.quantity_out}</p>
+                            <p className="text-xs text-muted-foreground">Returned: {item.quantity_returned}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Return Panel */}
                   {isSelected && checkoutDetail && (
@@ -205,12 +237,12 @@ export function CheckoutHistoryPage() {
                         )
                       })}
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setSelectedCheckoutId(null)}>
+                        <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedCheckoutId(null); }}>
                           Cancel
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() => handleReturn(txn.id)}
+                          onClick={(e) => { e.stopPropagation(); handleReturn(txn.id); }}
                           disabled={returnCheckout.isPending || Object.values(returnQuantities).every((v) => v <= 0)}
                         >
                           {returnCheckout.isPending ? 'Processing...' : 'Confirm Return'}

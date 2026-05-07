@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from './layout'
 import { ProtectedRoute } from './protectedRoute'
 import { LoginPage } from './pages/LoginPage'
+import { PublicBorrowPage } from './pages/PublicBorrowPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DocumentManagerPage } from './pages/documents/DocumentManagerPage'
 import {
@@ -12,11 +13,8 @@ import {
 } from './pages/inventory'
 import {
   TrackingDashboardPage,
-  RoomsPage,
-  DevicesPage,
-  BleTagsPage,
 } from './pages/ble'
-import { UsersPage, AdminPage } from './pages/admin'
+import { UsersPage } from './pages/admin'
 import { AuditLogPage } from './pages/audit'
 import { ReportsPage } from './pages/reports'
 
@@ -24,6 +22,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/borrow',
+    element: <PublicBorrowPage />,
   },
   {
     path: '/',
@@ -55,7 +57,7 @@ export const router = createBrowserRouter([
           {
             path: 'checkout',
             element: (
-              <ProtectedRoute allowedRoles={['admin', 'staff', 'student']}>
+              <ProtectedRoute allowedRoles={['admin', 'staff']}>
                 <CheckoutPage />
               </ProtectedRoute>
             ),
@@ -63,7 +65,7 @@ export const router = createBrowserRouter([
           {
             path: 'checkouts',
             element: (
-              <ProtectedRoute allowedRoles={['admin', 'staff', 'student']}>
+              <ProtectedRoute allowedRoles={['admin', 'staff']}>
                 <CheckoutHistoryPage />
               </ProtectedRoute>
             ),
@@ -75,30 +77,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin', 'staff']}>
             <TrackingDashboardPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'ble-tracking/rooms',
-        element: (
-          <ProtectedRoute allowedRoles={['admin', 'staff']}>
-            <RoomsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'ble-tracking/devices',
-        element: (
-          <ProtectedRoute allowedRoles={['admin', 'staff']}>
-            <DevicesPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'ble-tracking/tags',
-        element: (
-          <ProtectedRoute allowedRoles={['admin', 'staff']}>
-            <BleTagsPage />
           </ProtectedRoute>
         ),
       },
@@ -120,11 +98,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin',
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <AdminPage />
-          </ProtectedRoute>
-        ),
+        element: <Navigate to="/admin/users" replace />,
       },
       {
         path: 'admin/users',

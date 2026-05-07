@@ -4,9 +4,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
 import { FileList } from '@/components/documents/FileList'
 import { FileUploadZone } from '@/components/documents/FileUploadZone'
-import { ActivityLog } from '@/components/documents/ActivityLog'
 import { PermissionEditor } from '@/components/documents/PermissionEditor'
-import { FileViewer } from '@/components/documents/FileViewer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -187,10 +185,11 @@ export function DocumentManagerPage() {
             />
           </div>
 
-          {selectedDocumentId && (
+          {selectedDocumentId && selectedDocument && (
             <div className="rounded-lg border bg-card p-4">
-              <h3 className="text-sm font-semibold mb-3">Activity Log</h3>
-              <ActivityLog documentId={selectedDocumentId} />
+              <h3 className="text-sm font-semibold mb-3">{selectedDocument.name}</h3>
+              <p className="text-sm text-muted-foreground">Type: {selectedDocument.mime_type}</p>
+              <p className="text-sm text-muted-foreground">Size: {(selectedDocument.size_bytes / 1024).toFixed(1)} KB</p>
             </div>
           )}
         </div>
@@ -303,14 +302,6 @@ export function DocumentManagerPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* File Viewer Dialog */}
-      <FileViewer
-        open={!!viewDocument}
-        onOpenChange={(open) => {
-          if (!open) setViewDocument(null)
-        }}
-        document={viewDocument}
-      />
     </PageShell>
   )
 }

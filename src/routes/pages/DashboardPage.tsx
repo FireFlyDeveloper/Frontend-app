@@ -11,9 +11,11 @@ import {
   ShoppingCart,
   ClipboardList,
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export function DashboardPage() {
   const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: activity, isLoading: activityLoading } = useRecentActivity(20)
   const { data: rooms, isLoading: roomsLoading } = useRoomStatus()
@@ -31,6 +33,7 @@ export function DashboardPage() {
           icon={<Package className="h-5 w-5" />}
           colorClass="bg-green-100 text-green-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/inventory')}
         />
         <StatCard
           label="Documents"
@@ -38,6 +41,7 @@ export function DashboardPage() {
           icon={<FileText className="h-5 w-5" />}
           colorClass="bg-blue-100 text-blue-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/documents')}
         />
         <StatCard
           label="Users"
@@ -45,6 +49,7 @@ export function DashboardPage() {
           icon={<Users className="h-5 w-5" />}
           colorClass="bg-purple-100 text-purple-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/admin/users')}
         />
         <StatCard
           label="Missing Items"
@@ -52,6 +57,7 @@ export function DashboardPage() {
           icon={<AlertTriangle className="h-5 w-5" />}
           colorClass="bg-red-100 text-red-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/inventory?status=missing')}
         />
         <StatCard
           label="Offline Devices"
@@ -59,6 +65,7 @@ export function DashboardPage() {
           icon={<Radio className="h-5 w-5" />}
           colorClass="bg-orange-100 text-orange-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/ble-tracking')}
         />
         <StatCard
           label="Recent Checkouts"
@@ -66,6 +73,7 @@ export function DashboardPage() {
           icon={<ShoppingCart className="h-5 w-5" />}
           colorClass="bg-pink-100 text-pink-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/inventory/checkouts')}
         />
         <StatCard
           label="Active Checkouts"
@@ -73,6 +81,7 @@ export function DashboardPage() {
           icon={<ClipboardList className="h-5 w-5" />}
           colorClass="bg-cyan-100 text-cyan-600"
           isLoading={statsLoading}
+          onClick={() => navigate('/inventory/checkouts')}
         />
       </div>
 
