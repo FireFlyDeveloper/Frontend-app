@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   ShoppingCart,
   ArrowLeft,
@@ -10,6 +10,9 @@ import {
   BookOpen,
   Hash,
   Loader2,
+  X,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -57,34 +60,34 @@ function ItemRow({
 
   return (
     <div className="rounded-lg border p-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <Package className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium truncate">{item.name}</p>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
               {item.sku && <span className="font-mono text-primary">{item.sku}</span>}
               {isLoading ? (
                 <span>Loading stock...</span>
               ) : (
-                <span>Available: <strong>{remaining}</strong></span>
+                <span>Avail: <strong>{remaining}</strong></span>
               )}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Input
             type="number"
             min={1}
             max={Math.max(0, remaining)}
             value={qty}
             onChange={(e) => setQty(Math.max(1, Math.min(remaining, parseInt(e.target.value) || 1)))}
-            className="w-16 h-8 text-center"
+            className="w-14 h-9 text-center text-sm"
             disabled={remaining <= 0 || isLoading}
           />
           <Button
             size="sm"
-            className="h-8 shrink-0"
+            className="h-9 w-9 p-0 shrink-0"
             disabled={remaining <= 0 || isLoading || qty < 1}
             onClick={() => {
               if (lots) {
@@ -93,8 +96,7 @@ function ItemRow({
               }
             }}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            Add
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -119,10 +121,10 @@ function StudentInfoForm({
   onChange: (v: StudentInfo) => void
 }) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
+    <div className="space-y-3">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium flex items-center gap-2">
-          <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+          <Hash className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           Student ID (SR-Code)
         </label>
         <Input
@@ -131,9 +133,9 @@ function StudentInfoForm({
           onChange={(e) => onChange({ ...value, srcode: e.target.value })}
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium flex items-center gap-2">
-          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+          <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           Email
         </label>
         <Input
@@ -143,9 +145,9 @@ function StudentInfoForm({
           onChange={(e) => onChange({ ...value, email: e.target.value })}
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium flex items-center gap-2">
-          <User className="h-3.5 w-3.5 text-muted-foreground" />
+          <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           Full Name
         </label>
         <Input
@@ -154,9 +156,9 @@ function StudentInfoForm({
           onChange={(e) => onChange({ ...value, name: e.target.value })}
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label className="text-sm font-medium flex items-center gap-2">
-          <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+          <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           Course / Program
         </label>
         <Input
@@ -165,6 +167,225 @@ function StudentInfoForm({
           onChange={(e) => onChange({ ...value, course: e.target.value })}
         />
       </div>
+    </div>
+  )
+}
+
+// ── Mobile Cart Drawer ─────────────────────────────────────────────
+
+function MobileCartDrawer({
+  cart,
+  open,
+  onToggle,
+  onRemove,
+  onProceed,
+}: {
+  cart: CartItem[]
+  open: boolean
+  onToggle: () => void
+  onRemove: (lotId: string) => void
+  onProceed: () => void
+}) {
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open && panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [open])
+
+  return (
+    <div ref={panelRef} className="lg:hidden">
+      {/* Fixed bottom bar */}
+      {!open && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <button
+            onClick={onToggle}
+            className="flex w-full items-center justify-between px-4 py-3 active:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="text-sm font-medium">Cart</span>
+              {cart.length > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 rounded-full bg-primary text-[11px] font-bold text-primary-foreground px-1.5">
+                  {cart.reduce((s, c) => s + c.quantity, 0)}
+                </span>
+              )}
+            </div>
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+      )}
+
+      {/* Inline cart panel */}
+      {open && (
+        <div className="border rounded-lg bg-card">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                Cart ({cart.reduce((s, c) => s + c.quantity, 0)} items)
+              </span>
+            </div>
+            <button
+              onClick={onToggle}
+              className="p-1 -mr-1 rounded-md hover:bg-muted transition-colors"
+            >
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          <div className="p-3 space-y-2 max-h-[40vh] overflow-y-auto">
+            {cart.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Cart is empty
+              </p>
+            ) : (
+              cart.map((c) => (
+                <div
+                  key={c.lot.id}
+                  className="flex items-center gap-2 rounded-lg border p-2.5"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {c.lot.lot_code}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty: {c.quantity}
+                    </p>
+                  </div>
+                  <button
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
+                    onClick={() => onRemove(c.lot.id)}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="p-3 pt-0">
+            <Button
+              className="w-full"
+              onClick={onProceed}
+              disabled={cart.length === 0}
+            >
+              Proceed to Info
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Spacer for fixed bottom bar */}
+      {!open && cart.length > 0 && <div className="h-14" />}
+    </div>
+  )
+}
+
+// ── Desktop Cart Sidebar ───────────────────────────────────────────
+
+function DesktopCartSidebar({
+  cart,
+  onRemove,
+  onProceed,
+}: {
+  cart: CartItem[]
+  onRemove: (lotId: string) => void
+  onProceed: () => void
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <ShoppingCart className="h-4 w-4" />
+          Cart ({cart.reduce((s, c) => s + c.quantity, 0)})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {cart.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            Add items from the list to get started
+          </p>
+        ) : (
+          <>
+            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+              {cart.map((c) => (
+                <div
+                  key={c.lot.id}
+                  className="flex items-center gap-2 rounded-lg border p-2"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {c.lot.lot_code}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Qty: {c.quantity}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive"
+                    onClick={() => onRemove(c.lot.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              className="w-full"
+              onClick={onProceed}
+              disabled={cart.length === 0}
+            >
+              Proceed to Info
+            </Button>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ── Step indicator ──────────────────────────────────────────────────
+
+function StepIndicator({ step }: { step: 'browse' | 'info' | 'review' }) {
+  const steps = ['browse', 'info', 'review'] as const
+  const labels = ['Browse', 'Info', 'Submit']
+
+  return (
+    <div className="flex items-center gap-1.5 mb-5 text-sm">
+      {steps.map((s, i) => {
+        const completedIndex = steps.indexOf(step) > i
+        const active = step === s
+        return (
+          <div key={s} className="flex items-center gap-1.5">
+            <div
+              className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0 transition-colors ${
+                active
+                  ? 'bg-primary text-primary-foreground'
+                  : completedIndex
+                    ? 'bg-green-500 text-white'
+                    : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              {completedIndex ? (
+                <CheckCircle className="h-3.5 w-3.5" />
+              ) : (
+                i + 1
+              )}
+            </div>
+            <span
+              className={`hidden sm:inline ${active ? 'font-medium' : 'text-muted-foreground'}`}
+            >
+              {labels[i]}
+            </span>
+            {i < 2 && <span className="text-muted-foreground mx-0.5 hidden sm:inline">→</span>}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -179,6 +400,7 @@ export function PublicBorrowPage() {
   const [step, setStep] = useState<Step>('browse')
   const [itemSearch, setItemSearch] = useState('')
   const [cart, setCart] = useState<CartItem[]>([])
+  const [mobileCartOpen, setMobileCartOpen] = useState(false)
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     srcode: '',
     email: '',
@@ -286,6 +508,7 @@ export function PublicBorrowPage() {
       })
       setCart([])
       setStep('browse')
+      setMobileCartOpen(false)
       setStudentInfo({ srcode: '', email: '', name: '', course: '' })
     },
     onError: (err: any) => {
@@ -296,68 +519,35 @@ export function PublicBorrowPage() {
     },
   })
 
-  // ── Step indicator ─────────────────────────────────────────────
-
-  const stepIndicator = (
-    <div className="flex items-center gap-2 mb-6 text-sm">
-      {(['browse', 'info', 'review'] as const).map((s, i) => (
-        <div key={s} className="flex items-center gap-2">
-          <div
-            className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-              step === s
-                ? 'bg-primary text-primary-foreground'
-                : ['browse', 'info', 'review'].indexOf(step) > i
-                  ? 'bg-green-500 text-white'
-                  : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            {['browse', 'info', 'review'].indexOf(step) > i ? (
-              <CheckCircle className="h-4 w-4" />
-            ) : (
-              i + 1
-            )}
-          </div>
-          <span
-            className={
-              step === s ? 'font-medium' : 'text-muted-foreground'
-            }
-          >
-            {s === 'browse'
-              ? 'Browse Items'
-              : s === 'info'
-                ? 'Your Info'
-                : 'Review & Submit'}
-          </span>
-          {i < 2 && <span className="text-muted-foreground mx-1">→</span>}
-        </div>
-      ))}
-    </div>
-  )
+  const proceedToInfo = useCallback(() => {
+    setStep('info')
+    setMobileCartOpen(false)
+  }, [])
 
   // ── Step 1: Browse ─────────────────────────────────────────────
 
   if (step === 'browse') {
     return (
       <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Student Borrow Request
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              Borrow Items
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Browse available items and add them to your request cart
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+              Browse available items and add them to your request
             </p>
           </div>
 
-          {stepIndicator}
+          <StepIndicator step={step} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Available Items</CardTitle>
+                <CardHeader className="px-3 sm:px-6 py-3 sm:py-4">
+                  <CardTitle className="text-sm sm:text-base">Available Items</CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0 space-y-3">
+                <CardContent className="pt-0 px-3 sm:px-6 space-y-3">
                   <BarcodeScanner
                     onScan={handleBarcodeScan}
                     isLoading={scanning}
@@ -372,11 +562,11 @@ export function PublicBorrowPage() {
                   {itemsLoading ? (
                     <div className="space-y-2">
                       {Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-12" />
+                        <Skeleton key={i} className="h-12 sm:h-14" />
                       ))}
                     </div>
                   ) : items && items.length > 0 ? (
-                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-[50vh] sm:max-h-[500px] overflow-y-auto pr-1">
                       {items.map((item) => (
                         <ItemRow
                           key={item.id}
@@ -387,67 +577,33 @@ export function PublicBorrowPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">No items available</p>
+                    <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                      <Package className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-xs sm:text-sm">No items available</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </div>
 
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4" />
-                    Cart ({cart.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {cart.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Add items from the list to get started
-                    </p>
-                  ) : (
-                    <>
-                      {cart.map((c) => (
-                        <div
-                          key={c.lot.id}
-                          className="flex items-center gap-2 rounded-lg border p-2"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {c.lot.lot_code}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Qty: {c.quantity}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-destructive"
-                            onClick={() => removeFromCart(c.lot.id)}
-                          >
-                            <span className="text-xs">✕</span>
-                          </Button>
-                        </div>
-                      ))}
-
-                      <Button
-                        className="w-full"
-                        onClick={() => setStep('info')}
-                        disabled={cart.length === 0}
-                      >
-                        Proceed to Info
-                      </Button>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
+            {/* Desktop sidebar cart */}
+            <div className="hidden lg:block">
+              <DesktopCartSidebar
+                cart={cart}
+                onRemove={removeFromCart}
+                onProceed={proceedToInfo}
+              />
             </div>
           </div>
+
+          {/* Mobile cart drawer */}
+          <MobileCartDrawer
+            cart={cart}
+            open={mobileCartOpen}
+            onToggle={() => setMobileCartOpen((v) => !v)}
+            onRemove={removeFromCart}
+            onProceed={proceedToInfo}
+          />
         </div>
       </div>
     )
@@ -464,28 +620,28 @@ export function PublicBorrowPage() {
 
     return (
       <div className="min-h-screen bg-background">
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
           <Button
             variant="ghost"
             size="sm"
-            className="mb-4"
+            className="mb-3 sm:mb-4 -ml-2"
             onClick={() => setStep('browse')}
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Items
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
           </Button>
 
-          <h1 className="text-2xl font-bold tracking-tight mb-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-0.5">
             Your Information
           </h1>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
             Provide your student details so staff can process your request
           </p>
 
-          {stepIndicator}
+          <StepIndicator step={step} />
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="p-4 sm:p-6">
               <StudentInfoForm
                 value={studentInfo}
                 onChange={setStudentInfo}
@@ -493,7 +649,7 @@ export function PublicBorrowPage() {
             </CardContent>
           </Card>
 
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between mt-4 sm:mt-6">
             <Button variant="outline" onClick={() => setStep('browse')}>
               Back
             </Button>
@@ -513,67 +669,67 @@ export function PublicBorrowPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Button
           variant="ghost"
           size="sm"
-          className="mb-4"
+          className="mb-3 sm:mb-4 -ml-2"
           onClick={() => setStep('info')}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Info
+          <ArrowLeft className="h-4 w-4 mr-1.5" />
+          Back
         </Button>
 
-        <h1 className="text-2xl font-bold tracking-tight mb-1">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight mb-0.5">
           Review & Submit
         </h1>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
           Please double-check your information before submitting
         </p>
 
-        {stepIndicator}
+        <StepIndicator step={step} />
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Student Info Summary */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Student Details</CardTitle>
+            <CardHeader className="px-3 sm:px-6 py-3 sm:py-4 pb-2 sm:pb-3">
+              <CardTitle className="text-sm sm:text-base">Student Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">SR-Code</span>
-                <span className="font-medium">{studentInfo.srcode}</span>
+            <CardContent className="px-3 sm:px-6 space-y-1.5 text-xs sm:text-sm">
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground shrink-0">SR-Code</span>
+                <span className="font-medium text-right truncate">{studentInfo.srcode}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Email</span>
-                <span className="font-medium">{studentInfo.email}</span>
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground shrink-0">Email</span>
+                <span className="font-medium text-right truncate">{studentInfo.email}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Name</span>
-                <span className="font-medium">{studentInfo.name}</span>
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground shrink-0">Name</span>
+                <span className="font-medium text-right truncate">{studentInfo.name}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Course</span>
-                <span className="font-medium">{studentInfo.course}</span>
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground shrink-0">Course</span>
+                <span className="font-medium text-right truncate">{studentInfo.course}</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Items Summary */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
+            <CardHeader className="px-3 sm:px-6 py-3 sm:py-4 pb-2 sm:pb-3">
+              <CardTitle className="text-sm sm:text-base">
                 Items ({cart.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="px-3 sm:px-6 space-y-2">
               {cart.map((c) => (
                 <div
                   key={c.lot.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className="flex items-center justify-between rounded-lg border p-2.5 sm:p-3"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{c.lot.lot_code}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{c.lot.lot_code}</p>
                     <p className="text-xs text-muted-foreground">
                       Qty: {c.quantity}
                     </p>
@@ -600,7 +756,7 @@ export function PublicBorrowPage() {
             )}
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-xs text-center text-muted-foreground pb-4 sm:pb-0">
             Your request will be submitted for staff approval.
             You may use the same SR-Code and email to track your requests.
           </p>
