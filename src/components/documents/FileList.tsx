@@ -5,6 +5,26 @@ import { useDownloadDocument } from '@/hooks/useDocuments'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
+// ONLYOFFICE supported office document MIME types
+const OFFICE_MIME_TYPES = [
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.oasis.opendocument.text',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'application/vnd.oasis.opendocument.presentation',
+  'text/plain',
+  'text/csv',
+  'application/pdf',
+]
+
+function isOfficeDocument(mime: string): boolean {
+  return OFFICE_MIME_TYPES.includes(mime)
+}
+
 interface FileListProps {
   documents: DocumentFile[]
   isLoading: boolean
@@ -64,7 +84,7 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {selectedDocumentId === doc.id && onEdit && doc.user_permission !== 'viewer' && (
+            {selectedDocumentId === doc.id && onEdit && doc.user_permission !== 'viewer' && isOfficeDocument(doc.mime_type) && (
               <Button
                 variant="ghost"
                 size="icon"
