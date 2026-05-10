@@ -5,6 +5,7 @@ import { FolderTree } from '@/components/documents/FolderTree'
 import { FileList } from '@/components/documents/FileList'
 import { FileViewer } from '@/components/documents/FileViewer'
 import { OnlyOfficeEditor } from '@/components/documents/OnlyOfficeEditor'
+import { Portal } from '@/components/ui/portal'
 import { FileUploadZone } from '@/components/documents/FileUploadZone'
 import { PermissionEditor } from '@/components/documents/PermissionEditor'
 import { Button } from '@/components/ui/button'
@@ -356,18 +357,22 @@ export function DocumentManagerPage() {
         </DialogContent>
       </Dialog>
       {editingDocument && (
-        <OnlyOfficeEditor
-          docId={editingDocument.id}
-          docName={editingDocument.name}
-          onClose={() => setEditingDocument(null)}
-        />
+        <Portal>
+          <OnlyOfficeEditor
+            docId={editingDocument.id}
+            docName={editingDocument.name}
+            onClose={() => setEditingDocument(null)}
+          />
+        </Portal>
       )}
       {previewDocument && (
-        <FileViewer
-          open={!!previewDocument}
-          onOpenChange={(open) => { if (!open) setPreviewDocument(null) }}
-          document={previewDocument}
-        />
+        <Portal>
+          <FileViewer
+            open={!!previewDocument}
+            onOpenChange={(open) => { if (!open) setPreviewDocument(null) }}
+            document={previewDocument}
+          />
+        </Portal>
       )}
     </PageShell>
   )
