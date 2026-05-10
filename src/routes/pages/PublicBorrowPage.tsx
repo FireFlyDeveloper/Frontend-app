@@ -810,5 +810,6 @@ export function PublicBorrowPage() {
           </p>
         </div>
       </div>
+    </div>
   )
 }
