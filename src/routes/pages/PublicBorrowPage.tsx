@@ -662,6 +662,59 @@ export function PublicBorrowPage() {
 
   // ── Step 3: Review & Submit ────────────────────────────────────
 
+  if (step === 'submitted') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4 py-12 text-center">
+          <div className="animate-bounce mb-6">
+            <PartyPopper className="h-16 w-16 mx-auto text-primary" />
+          </div>
+
+          <h1 className="text-2xl font-bold tracking-tight mb-2">
+            Request Submitted! 🎉
+          </h1>
+
+          <p className="text-muted-foreground mb-2">
+            Thank you, <strong>{studentInfo.name}</strong>!
+          </p>
+
+          <p className="text-sm text-muted-foreground mb-6">
+            Your borrow request has been submitted for staff approval.
+            You will receive an email notification at{' '}
+            <strong>{studentInfo.email}</strong> once it's processed.
+          </p>
+
+          <div className="rounded-lg border bg-card p-4 mb-6 text-left text-sm space-y-1.5">
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">SR-Code</span>
+              <span className="font-medium text-right">{studentInfo.srcode}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">Items</span>
+              <span className="font-medium text-right">{cart.reduce((s, c) => s + c.quantity, 0)}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">Status</span>
+              <span className="font-medium text-green-600">Pending Approval</span>
+            </div>
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={() => {
+              setCart([])
+              setMobileCartOpen(false)
+              setStudentInfo({ srcode: '', email: '', name: '', course: '' })
+              setStep('browse')
+            }}
+          >
+            Submit Another Request
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
@@ -757,64 +810,5 @@ export function PublicBorrowPage() {
           </p>
         </div>
       </div>
-    </div>
   )
-
-  // ── Step 4: Submitted (success) ──────────────────────────────────
-
-  if (step === 'submitted') {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4 py-12 text-center">
-          <div className="animate-bounce mb-6">
-            <PartyPopper className="h-16 w-16 mx-auto text-primary" />
-          </div>
-
-          <h1 className="text-2xl font-bold tracking-tight mb-2">
-            Request Submitted! 🎉
-          </h1>
-
-          <p className="text-muted-foreground mb-2">
-            Thank you, <strong>{studentInfo.name}</strong>!
-          </p>
-
-          <p className="text-sm text-muted-foreground mb-6">
-            Your borrow request has been submitted for staff approval.
-            You will receive an email notification at{' '}
-            <strong>{studentInfo.email}</strong> once it's processed.
-          </p>
-
-          <div className="rounded-lg border bg-card p-4 mb-6 text-left text-sm space-y-1.5">
-            <div className="flex justify-between gap-2">
-              <span className="text-muted-foreground shrink-0">SR-Code</span>
-              <span className="font-medium text-right">{studentInfo.srcode}</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-muted-foreground shrink-0">Items</span>
-              <span className="font-medium text-right">{cart.reduce((s, c) => s + c.quantity, 0)}</span>
-            </div>
-            <div className="flex justify-between gap-2">
-              <span className="text-muted-foreground shrink-0">Status</span>
-              <span className="font-medium text-green-600">Pending Approval</span>
-            </div>
-          </div>
-
-          <Button
-            className="w-full"
-            onClick={() => {
-              setCart([])
-              setMobileCartOpen(false)
-              setStudentInfo({ srcode: '', email: '', name: '', course: '' })
-              setStep('browse')
-            }}
-          >
-            Submit Another Request
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  // Fallback (should never reach here)
-  return null
 }
