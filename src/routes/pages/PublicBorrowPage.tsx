@@ -443,9 +443,9 @@ export function PublicBorrowPage() {
       setCart((prev) => {
         const next = [...prev]
         for (const add of additions) {
-          const existing = next.find((c) => c.lot.id === add.lot.id)
-          if (existing) {
-            existing.quantity += add.quantity
+          const index = next.findIndex((c) => c.lot.id === add.lot.id)
+          if (index >= 0) {
+            next[index] = { ...next[index], quantity: next[index].quantity + add.quantity }
           } else {
             next.push(add)
           }
