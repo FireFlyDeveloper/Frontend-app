@@ -26,7 +26,7 @@ export function DashboardPage() {
       description="Here's an overview of your platform"
     >
       {/* Stats Grid */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Items"
           value={stats?.totalItems ?? 0}
@@ -86,7 +86,7 @@ export function DashboardPage() {
       </div>
 
       {/* Activity + Room Status */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 lg:grid-cols-2">
         <ActivityFeed activity={activity} isLoading={activityLoading} />
         <RoomStatusCard rooms={rooms} isLoading={roomsLoading} />
       </div>

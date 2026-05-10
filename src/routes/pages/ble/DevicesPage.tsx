@@ -78,28 +78,28 @@ export function DevicesPage() {
       title="BLE Devices"
       description="Manage BLE gateway devices"
       actions={
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Register Device
+        <Button onClick={openCreate} className="w-full sm:w-auto">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="sm:inline">Register Device</span>
         </Button>
       }
     >
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-40 w-full" />
+            <Skeleton key={i} className="h-32 sm:h-40 w-full" />
           ))}
         </div>
       ) : !devices || devices.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <Cpu className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No devices registered yet.</p>
-          <Button variant="outline" className="mt-4" onClick={openCreate}>
+        <div className="text-center py-8 sm:py-16 text-muted-foreground">
+          <Cpu className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+          <p className="text-sm sm:text-base">No devices registered yet.</p>
+          <Button variant="outline" className="mt-3 sm:mt-4 w-full sm:w-auto" onClick={openCreate}>
             Register your first device
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {devices.map((device) => (
             <div key={device.id} className="relative group">
               <div onClick={() => openEdit(device)}>
@@ -108,7 +108,7 @@ export function DevicesPage() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-xs sm:text-sm px-2 sm:px-3"
                 onClick={() => handleDelete(device.id)}
               >
                 Delete
@@ -119,13 +119,13 @@ export function DevicesPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{editingDevice ? 'Edit Device' : 'Register Device'}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">{editingDevice ? 'Edit Device' : 'Register Device'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="deviceId">Device ID</Label>
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="deviceId" className="text-sm sm:text-base">Device ID</Label>
               <Input
                 id="deviceId"
                 value={deviceId}
@@ -133,24 +133,27 @@ export function DevicesPage() {
                 placeholder="e.g. ble-gw-001"
                 required
                 disabled={!!editingDevice}
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="name" className="text-sm sm:text-base">Name</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Lab A Gateway"
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="room">Room</Label>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="room" className="text-sm sm:text-base">Room</Label>
               <Select
                 id="room"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
+                className="text-sm sm:text-base"
               >
                 <option value="">Unassigned</option>
                 {rooms?.map((room) => (
@@ -160,22 +163,23 @@ export function DevicesPage() {
                 ))}
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="rssi">RSSI Range (dBm)</Label>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="rssi" className="text-sm sm:text-base">RSSI Range (dBm)</Label>
               <Input
                 id="rssi"
                 type="number"
                 value={rssiRange}
                 onChange={(e) => setRssiRange(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="e.g. -70"
+                className="text-sm sm:text-base"
               />
               <p className="text-xs text-muted-foreground">Threshold for detecting presence in this room. Smaller rooms can use a higher value (e.g. -60).</p>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" disabled={createDevice.isPending || updateDevice.isPending}>
+              <Button type="submit" disabled={createDevice.isPending || updateDevice.isPending} className="w-full sm:w-auto">
                 {editingDevice ? 'Update' : 'Register'}
               </Button>
             </DialogFooter>

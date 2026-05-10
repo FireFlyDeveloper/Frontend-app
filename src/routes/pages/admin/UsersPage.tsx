@@ -150,25 +150,25 @@ export function UsersPage() {
       title="User Management"
       description="Manage platform users, roles, and access"
       actions={
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={openCreate} className="h-9 sm:h-10 text-xs sm:text-sm px-3">
+          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
           Add User
         </Button>
       }
     >
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
         {[
-          { label: 'Total Users', value: stats.total, icon: <Users className="h-4 w-4" /> },
-          { label: 'Active', value: stats.active, icon: <UserCheck className="h-4 w-4" /> },
-          { label: 'Inactive', value: stats.inactive, icon: <UserX className="h-4 w-4" /> },
-          { label: 'Admins', value: stats.admins, icon: <Shield className="h-4 w-4" /> },
+          { label: 'Total Users', value: stats.total, icon: <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
+          { label: 'Active', value: stats.active, icon: <UserCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
+          { label: 'Inactive', value: stats.inactive, icon: <UserX className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
+          { label: 'Admins', value: stats.admins, icon: <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
         ].map((stat) => (
           <Card key={stat.label}>
-            <CardContent className="pt-4">
+            <CardContent className="pt-3 sm:pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
                 <div className="text-muted-foreground">{stat.icon}</div>
@@ -180,15 +180,15 @@ export function UsersPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-4">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+        <CardContent className="pt-3 sm:pt-4">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                className="pl-9 text-sm"
               />
             </div>
             <Select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1) }}>
@@ -204,7 +204,7 @@ export function UsersPage() {
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </Select>
-            <Button type="submit" variant="outline">
+            <Button type="submit" variant="outline" className="h-9 sm:h-10 text-xs sm:text-sm px-3">
               Search
             </Button>
           </form>
@@ -213,10 +213,10 @@ export function UsersPage() {
 
       {/* User List */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Users</CardTitle>
+        <CardHeader className="px-3 sm:px-6 py-3 sm:py-4">
+          <CardTitle className="text-sm sm:text-base">Users</CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 px-3 sm:px-6">
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -229,90 +229,94 @@ export function UsersPage() {
               <p>No users found matching your filters.</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                      {user.display_name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{user.display_name}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        <span className="truncate">{user.email}</span>
+            <div className="overflow-x-auto -mx-3 sm:-mx-0">
+              <div className="min-w-0 space-y-2 px-3 sm:px-0">
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between rounded-lg border p-2 sm:p-3 hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs sm:text-sm font-bold shrink-0">
+                        {user.display_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 max-w-[120px] xs:max-w-[160px] sm:max-w-none">
+                        <p className="text-xs sm:text-sm font-medium truncate">{user.display_name}</p>
+                        <div className="flex items-center gap-1 sm:gap-2 text-[11px] sm:text-xs text-muted-foreground">
+                          <Mail className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                          <span className="truncate">{user.email}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-2">
-                    <div className="hidden sm:flex items-center gap-1">
-                      {user.roles.map((role) => (
-                        <Badge
-                          key={role.id}
-                          variant="outline"
-                          className={`text-xs capitalize ${ROLE_COLORS[role.name] || ''}`}
-                        >
-                          {role.name}
-                        </Badge>
-                      ))}
-                      {user.roles.length === 0 && (
-                        <Badge variant="outline" className="text-xs">No roles</Badge>
-                      )}
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <div className="hidden sm:flex items-center gap-1">
+                        {user.roles.map((role) => (
+                          <Badge
+                            key={role.id}
+                            variant="outline"
+                            className={`text-xs capitalize ${ROLE_COLORS[role.name] || ''}`}
+                          >
+                            {role.name}
+                          </Badge>
+                        ))}
+                        {user.roles.length === 0 && (
+                          <Badge variant="outline" className="text-xs">No roles</Badge>
+                        )}
+                      </div>
+                      <div
+                        className={`h-2 w-2 rounded-full shrink-0 ${
+                          user.is_active ? 'bg-green-500' : 'bg-gray-400'
+                        }`}
+                        title={user.is_active ? 'Active' : 'Inactive'}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                        onClick={() => openEdit(user)}
+                      >
+                        <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </Button>
                     </div>
-                    <div
-                      className={`h-2 w-2 rounded-full shrink-0 ${
-                        user.is_active ? 'bg-green-500' : 'bg-gray-400'
-                      }`}
-                      title={user.is_active ? 'Active' : 'Inactive'}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => openEdit(user)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Page {page} of {totalPages} ({total} total)
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
+                  className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
+                  className="h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
@@ -403,13 +407,14 @@ export function UsersPage() {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="text-xs sm:text-sm h-9 sm:h-10">
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={createUser.isPending || updateUser.isPending}
+                className="text-xs sm:text-sm h-9 sm:h-10"
               >
                 {editingUser ? 'Update' : 'Create'}
               </Button>

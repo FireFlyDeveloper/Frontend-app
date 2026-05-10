@@ -112,27 +112,26 @@ export function DocumentManagerPage() {
       title="Documents"
       description="Manage your files and folders"
       actions={
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowNewFolder(true)}
-          >
-            <FolderPlus className="h-4 w-4 mr-2" />
-            New Folder
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowNewFolder(true)}
+          className="w-full sm:w-auto justify-center"
+        >
+          <FolderPlus className="h-4 w-4 mr-2 shrink-0" />
+          <span>New Folder</span>
+        </Button>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Folder Tree */}
         <div className="lg:col-span-1">
-          <div className="rounded-lg border bg-card p-4">
+          <div className="rounded-lg border bg-card p-3 lg:p-4">
             <h3 className="text-sm font-semibold mb-3">Folders</h3>
             {foldersLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-8 bg-muted rounded animate-pulse" />
+                  <div key={i} className="h-7 lg:h-8 bg-muted rounded animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -190,7 +189,7 @@ export function DocumentManagerPage() {
 
           {!isSearching && <FileUploadZone folderId={selectedFolderId} />}
 
-          <div className="rounded-lg border bg-card p-4">
+          <div className="rounded-lg border bg-card p-3 lg:p-4">
             <h3 className="text-sm font-semibold mb-3">
               {isSearching ? 'Search Results' : 'Documents'}
             </h3>
@@ -210,12 +209,12 @@ export function DocumentManagerPage() {
           </div>
 
           {selectedDocumentId && selectedDocument && (
-            <div className="rounded-lg border bg-card p-4">
+            <div className="rounded-lg border bg-card p-3 lg:p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                {selectedDocument.name}
+                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="truncate">{selectedDocument.name}</span>
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <FileText className="h-3.5 w-3.5 shrink-0" />
                   <span>{mimeLabel(selectedDocument.mime_type)}</span>

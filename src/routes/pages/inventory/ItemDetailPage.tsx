@@ -127,8 +127,8 @@ export function ItemDetailPage() {
   if (itemLoading) {
     return (
       <PageShell title="Item Details">
-        <Skeleton className="h-40" />
-        <Skeleton className="h-60 mt-4" />
+        <Skeleton className="h-24 sm:h-40" />
+        <Skeleton className="h-36 sm:h-60 mt-3 sm:mt-4" />
       </PageShell>
     )
   }
@@ -136,7 +136,7 @@ export function ItemDetailPage() {
   if (!item) {
     return (
       <PageShell title="Item Not Found">
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <div className="flex flex-col items-center justify-center py-10 md:py-20 text-muted-foreground">
           <Package className="h-12 w-12 mb-4 opacity-50" />
           <p className="text-lg font-medium">Item not found</p>
           <Button variant="outline" className="mt-4" onClick={() => navigate('/inventory')}>
@@ -185,8 +185,8 @@ export function ItemDetailPage() {
                 )}
               </div>
               <div>
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <div className="flex items-center gap-2 mt-1">
+                <h2 className="text-base sm:text-lg font-semibold">{item.name}</h2>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                   <Badge variant="outline" className={cn('text-xs', statusColors[item.status])}>
                     {item.status}
                   </Badge>
@@ -369,7 +369,7 @@ export function ItemDetailPage() {
               ) : lots && lots.length > 0 ? (
                 <div className="space-y-2">
                   {lots.map((lot) => (
-                    <div key={lot.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div key={lot.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg border p-3">
                       <div>
                         <p className="text-sm font-medium">{lot.lot_code}</p>
                         {(lot.purchased_at || lot.expires_at) && (
@@ -381,7 +381,7 @@ export function ItemDetailPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="flex items-center gap-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                           <span>Total: <strong>{lot.quantity_total}</strong></span>
                           <span>On Hand: <strong className="text-green-700">{lot.quantity_on_hand}</strong></span>
                           <span>Out: <strong className="text-amber-700">{lot.quantity_out}</strong></span>
@@ -413,7 +413,7 @@ export function ItemDetailPage() {
             </CardHeader>
             <CardContent>
               {lots && lots.length > 0 ? (
-                <div className="flex items-end gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
                   <div className="flex-1 space-y-2">
                     <label className="text-sm font-medium">Lot</label>
                     <select
@@ -429,7 +429,7 @@ export function ItemDetailPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="w-24 space-y-2">
+                  <div className="w-full sm:w-24 space-y-2">
                     <label className="text-sm font-medium">Qty</label>
                     <Input
                       type="number"
@@ -441,6 +441,7 @@ export function ItemDetailPage() {
                   <Button
                     onClick={handleCheckout}
                     disabled={!checkoutLotId || !checkoutQty || createCheckout.isPending}
+                    className="w-full sm:w-auto"
                   >
                     {createCheckout.isPending ? 'Checking out...' : 'Checkout'}
                   </Button>
@@ -467,7 +468,7 @@ export function ItemDetailPage() {
               ) : checkouts && checkouts.length > 0 ? (
                 <div className="space-y-2">
                   {checkouts.map((txn) => (
-                    <div key={txn.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div key={txn.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg border p-3">
                       <div>
                         <p className="text-sm font-medium">Checkout #{txn.id.slice(0, 8)}</p>
                         <p className="text-xs text-muted-foreground">

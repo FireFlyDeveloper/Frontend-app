@@ -15,11 +15,14 @@ export function AppLayout() {
       <div
         className={cn(
           'transition-all duration-300',
-          sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'
+          // Desktop: content shifts with sidebar
+          sidebarOpen ? 'lg:ml-64' : 'lg:ml-16',
+          // Mobile: no left margin (sidebar overlays)
+          'ml-0'
         )}
       >
         <Header />
-        <main className="p-4 lg:p-6">
+        <main className="p-3 sm:p-4 lg:p-6">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

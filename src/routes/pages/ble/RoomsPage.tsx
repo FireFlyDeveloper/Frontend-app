@@ -58,38 +58,45 @@ export function RoomsPage() {
       title="Rooms"
       description="Manage BLE tracking rooms"
       actions={
-        <Button onClick={openCreate}>
+        <>
+          <Button onClick={openCreate} size="sm" className="md:hidden">
+          <Plus className="h-4 w-4 mr-1 md:mr-2" />
+          <span className="hidden sm:inline">Add Room</span>
+          <span className="sm:hidden">Add</span>
+        </Button>
+        <Button onClick={openCreate} size="default" className="hidden md:inline-flex">
           <Plus className="h-4 w-4 mr-2" />
           Add Room
         </Button>
+          </>
       }
     >
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-20 w-full" />
+            <Skeleton key={i} className="h-16 md:h-20 w-full" />
           ))}
         </div>
       ) : !rooms || rooms.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <div className="text-center py-10 md:py-16 text-muted-foreground">
+          <MapPin className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 opacity-50" />
           <p>No rooms configured yet.</p>
-          <Button variant="outline" className="mt-4" onClick={openCreate}>
+          <Button variant="outline" className="mt-4 w-full sm:w-auto" onClick={openCreate}>
             Create your first room
           </Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
           {rooms.map((room) => (
             <Card key={room.id}>
-              <CardContent className="flex items-center justify-between py-4">
-                <div>
-                  <h3 className="font-medium">{room.name}</h3>
+              <CardContent className="flex items-center justify-between py-3 md:py-4 px-3 md:px-6">
+                <div className="min-w-0 flex-1 mr-2">
+                  <h3 className="font-medium text-sm md:text-base truncate">{room.name}</h3>
                   {room.description && (
-                    <p className="text-sm text-muted-foreground">{room.description}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">{room.description}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2 shrink-0">
                   <Button variant="ghost" size="icon" onClick={() => openEdit(room)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -108,8 +115,8 @@ export function RoomsPage() {
           <DialogHeader>
             <DialogTitle>{editingRoom ? 'Edit Room' : 'Add Room'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+            <div className="space-y-1 md:space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -119,7 +126,7 @@ export function RoomsPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1 md:space-y-2">
               <Label htmlFor="description">Description</Label>
               <Input
                 id="description"
@@ -128,11 +135,11 @@ export function RoomsPage() {
                 placeholder="Optional description"
               />
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={createRoom.isPending || updateRoom.isPending}>
+              <Button type="submit" className="w-full sm:w-auto" disabled={createRoom.isPending || updateRoom.isPending}>
                 {editingRoom ? 'Update' : 'Create'}
               </Button>
             </DialogFooter>

@@ -57,7 +57,7 @@ export function InventoryListPage() {
       }
     >
       {/* Filters - Grid layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <div className="relative sm:col-span-2 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -92,13 +92,13 @@ export function InventoryListPage() {
 
       {/* Items Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
+            <Skeleton key={i} className="h-24 sm:h-32" />
           ))}
         </div>
       ) : items && items.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {items.map((item) => (
             <ItemCard
               key={item.id}
@@ -108,10 +108,10 @@ export function InventoryListPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <Filter className="h-12 w-12 mb-4 opacity-50" />
-          <p className="text-lg font-medium">No items found</p>
-          <p className="text-sm">Try adjusting your filters</p>
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-muted-foreground">
+          <Filter className="h-10 w-10 sm:h-12 sm:w-12 mb-3 sm:mb-4 opacity-50" />
+          <p className="text-base sm:text-lg font-medium">No items found</p>
+          <p className="text-xs sm:text-sm">Try adjusting your filters</p>
         </div>
       )}
 

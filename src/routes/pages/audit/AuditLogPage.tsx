@@ -77,7 +77,7 @@ export function AuditLogPage() {
       title="Audit Logs"
       description="Track all system activity and changes"
       actions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={handleExportCSV}>
             <FileDown className="h-4 w-4 mr-2" />
             CSV
@@ -91,8 +91,8 @@ export function AuditLogPage() {
     >
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <CardContent className="p-3 lg:p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 md:gap-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">Entity Type</label>
               <Select value={entityType} onChange={(e) => { setEntityType(e.target.value); setPage(1) }}>
@@ -132,50 +132,50 @@ export function AuditLogPage() {
       {/* Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs lg:text-sm whitespace-nowrap">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left px-4 py-3 font-medium">Entity</th>
-                <th className="text-left px-4 py-3 font-medium">Action</th>
-                <th className="text-left px-4 py-3 font-medium">Actor</th>
-                <th className="text-left px-4 py-3 font-medium">Entity ID</th>
-                <th className="text-left px-4 py-3 font-medium">Timestamp</th>
+                <th className="text-left px-2 lg:px-4 py-2 lg:py-3 font-medium">Entity</th>
+                <th className="text-left px-2 lg:px-4 py-2 lg:py-3 font-medium">Action</th>
+                <th className="text-left px-2 lg:px-4 py-2 lg:py-3 font-medium">Actor</th>
+                <th className="text-left px-2 lg:px-4 py-2 lg:py-3 font-medium">Entity ID</th>
+                <th className="text-left px-2 lg:px-4 py-2 lg:py-3 font-medium">Timestamp</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b">
-                    <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
-                    <td className="px-4 py-3"><Skeleton className="h-4 w-16" /></td>
-                    <td className="px-4 py-3"><Skeleton className="h-4 w-24" /></td>
-                    <td className="px-4 py-3"><Skeleton className="h-4 w-28" /></td>
-                    <td className="px-4 py-3"><Skeleton className="h-4 w-32" /></td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3"><Skeleton className="h-4 w-28" /></td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3"><Skeleton className="h-4 w-32" /></td>
                   </tr>
                 ))
               ) : logs.length > 0 ? (
                 logs.map((log) => (
                   <tr key={log.id} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
+                    <td className="px-2 lg:px-4 py-2 lg:py-3">
                       <Badge variant="outline" className="capitalize text-xs">
                         {log.entityType}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-2 lg:px-4 py-2 lg:py-3">
                       <span className="capitalize font-medium">{log.action}</span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{log.actorName}</td>
-                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                    <td className="px-2 lg:px-4 py-2 lg:py-3 text-muted-foreground">{log.actorName}</td>
+                    <td className="px-2 lg:px-4 py-2 lg:py-3 text-muted-foreground font-mono text-xs">
                       {log.entityId ? log.entityId.slice(0, 12) + '...' : '—'}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-2 lg:px-4 py-2 lg:py-3 text-muted-foreground text-xs">
                       {new Date(log.createdAt).toLocaleString()}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={5} className="px-2 lg:px-4 py-8 lg:py-12 text-center text-muted-foreground">
                     <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No audit logs found</p>
                   </td>
@@ -188,15 +188,15 @@ export function AuditLogPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex-col sm:flex-row items-center justify-between gap-3 px-2 sm:px-0">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Showing {(page - 1) * limit + 1} - {Math.min(page * limit, total)} of {total}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
               Previous
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground">
               Page {page} of {totalPages}
             </span>
             <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>

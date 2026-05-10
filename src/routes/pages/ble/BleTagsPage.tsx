@@ -95,7 +95,7 @@ export function BleTagsPage() {
       title="BLE Tags"
       description="Manage BLE asset tags"
       actions={
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Register Tag
         </Button>
@@ -108,8 +108,8 @@ export function BleTagsPage() {
           ))}
         </div>
       ) : !tags || tags.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <Tag className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <div className="text-center py-12 sm:py-16 text-muted-foreground">
+          <Tag className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-4 opacity-50" />
           <p>No tags registered yet.</p>
           <Button variant="outline" className="mt-4" onClick={openCreate}>
             Register your first tag
@@ -119,17 +119,17 @@ export function BleTagsPage() {
         <div className="space-y-3">
           {tags.map((tag) => (
             <Card key={tag.id}>
-              <CardContent className="flex items-center justify-between py-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium truncate">{tag.name}</h3>
-                    <span className="text-xs text-muted-foreground font-mono">{tag.tag_id}</span>
+              <CardContent className="flex items-center justify-between py-3 sm:py-4 px-3 sm:px-6">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">
+                    <h3 className="font-medium truncate text-sm sm:text-base">{tag.name}</h3>
+                    <span className="text-xs text-muted-foreground font-mono truncate">{tag.tag_id}</span>
                   </div>
                   <div className="mt-1">
                     {tag.item_id ? (
                       <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-600">
                         <Link2 className="h-3 w-3 mr-1" />
-                        {tag.item_name || 'Assigned'}
+                        <span className="truncate max-w-[120px] sm:max-w-none inline-block align-bottom">{tag.item_name || 'Assigned'}</span>
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-xs">
@@ -138,21 +138,21 @@ export function BleTagsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 ml-2">
                   {tag.item_id ? (
-                    <Button variant="ghost" size="icon" onClick={() => handleUnassign(tag)} title="Unassign">
-                      <Unlink className="h-4 w-4 text-muted-foreground" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleUnassign(tag)} title="Unassign">
+                      <Unlink className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                     </Button>
                   ) : (
-                    <Button variant="ghost" size="icon" onClick={() => openAssign(tag)} title="Assign to item">
-                      <Link2 className="h-4 w-4 text-muted-foreground" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => openAssign(tag)} title="Assign to item">
+                      <Link2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(tag)}>
-                    <Pencil className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => openEdit(tag)}>
+                    <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(tag.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleDelete(tag.id)}>
+                    <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
                   </Button>
                 </div>
               </CardContent>

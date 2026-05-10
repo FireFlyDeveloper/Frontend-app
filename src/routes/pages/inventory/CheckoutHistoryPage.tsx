@@ -88,12 +88,12 @@ export function CheckoutHistoryPage() {
 
   return (
     <PageShell title="Request History" description="View and manage requests">
-      <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
+      <Button variant="ghost" size="sm" className="mb-1 sm:mb-2" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory
       </Button>
 
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4">
         <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">All Status</option>
           <option value="pending_approval">Pending Approval</option>
@@ -106,13 +106,13 @@ export function CheckoutHistoryPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-20" />
+            <Skeleton key={i} className="h-16 sm:h-20" />
           ))}
         </div>
       ) : checkouts && checkouts.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {checkouts.map((txn) => {
             const status = statusConfig[txn.status]
             const isSelected = selectedCheckoutId === txn.id
@@ -125,10 +125,10 @@ export function CheckoutHistoryPage() {
                 )}
                 onClick={() => setSelectedCheckoutId(isSelected ? null : txn.id)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-4">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2 sm:gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <Package className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Request #{txn.id.slice(0, 8)}</span>
                         <Badge variant="outline" className={cn('text-xs flex items-center gap-1', status.color)}>
@@ -146,7 +146,7 @@ export function CheckoutHistoryPage() {
                       )}
                       {renderNotes(txn.notes)}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                       {isAdminOrStaff && canApprove(txn.status) && (
                         <>
                           <Button
@@ -156,7 +156,7 @@ export function CheckoutHistoryPage() {
                             onClick={(e) => { e.stopPropagation(); approveCheckout.mutate(txn.id); }}
                             disabled={approveCheckout.isPending}
                           >
-                            <ThumbsUp className="h-3 w-3 mr-1" />
+                            <ThumbsUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                             Approve
                           </Button>
                           <Button
@@ -166,7 +166,7 @@ export function CheckoutHistoryPage() {
                             onClick={(e) => { e.stopPropagation(); rejectCheckout.mutate(txn.id); }}
                             disabled={rejectCheckout.isPending}
                           >
-                            <ThumbsDown className="h-3 w-3 mr-1" />
+                            <ThumbsDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                             Reject
                           </Button>
                         </>
@@ -181,7 +181,7 @@ export function CheckoutHistoryPage() {
                             setReturnQuantities({})
                           }}
                         >
-                          <RotateCcw className="h-3 w-3 mr-1" />
+                          <RotateCcw className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                           Return
                         </Button>
                       )}
@@ -194,7 +194,7 @@ export function CheckoutHistoryPage() {
                           onClick={(e) => { e.stopPropagation(); cancelCheckout.mutate(txn.id); }}
                           disabled={cancelCheckout.isPending}
                         >
-                          <XCircle className="h-3 w-3 mr-1" />
+                          <XCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                           Cancel
                         </Button>
                       )}
@@ -206,7 +206,7 @@ export function CheckoutHistoryPage() {
                     <div className="mt-4 border-t pt-4 space-y-2">
                       <h4 className="text-sm font-semibold">Items</h4>
                       {checkoutDetail.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between rounded-lg border p-3">
+                        <div key={item.id} className="flex items-center justify-between rounded-lg border p-2 sm:p-3">
                           <div>
                             <p className="text-sm font-medium">{item.item_name}</p>
                             <p className="text-xs text-muted-foreground">Lot: {item.lot_code}</p>
@@ -222,14 +222,14 @@ export function CheckoutHistoryPage() {
 
                   {/* Return Panel */}
                   {isSelected && checkoutDetail && (
-                    <div className="mt-4 border-t pt-4 space-y-3">
+                    <div className="mt-4 border-t pt-4 space-y-2 sm:space-y-3">
                       <h4 className="text-sm font-semibold">Select items to return</h4>
                       {checkoutDetail.items.map((item) => {
                         const remaining = item.quantity_out - item.quantity_returned
                         if (remaining <= 0) return null
                         const returnQty = returnQuantities[item.id] || 0
                         return (
-                          <div key={item.id} className="flex items-center justify-between rounded-lg border p-3">
+                          <div key={item.id} className="flex items-center justify-between rounded-lg border p-2 sm:p-3">
                             <div>
                               <p className="text-sm font-medium">{item.item_name}</p>
                               <p className="text-xs text-muted-foreground">{item.lot_code}</p>
@@ -249,13 +249,13 @@ export function CheckoutHistoryPage() {
                                     [item.id]: Math.min(remaining, Math.max(0, Number(e.target.value))),
                                   }))
                                 }
-                                className="w-16 h-8 rounded-md border border-input bg-background px-2 text-sm text-center"
+                                className="w-14 h-7 sm:w-16 sm:h-8 rounded-md border border-input bg-background px-1 sm:px-2 text-xs sm:text-sm text-center"
                               />
                             </div>
                           </div>
                         )
                       })}
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1 sm:gap-2">
                         <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedCheckoutId(null); }}>
                           Cancel
                         </Button>
@@ -275,9 +275,9 @@ export function CheckoutHistoryPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <Package className="h-12 w-12 mb-4 opacity-50" />
-          <p className="text-lg font-medium">No requests found</p>
+        <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-muted-foreground">
+          <Package className="h-10 w-10 sm:h-12 sm:w-12 mb-3 sm:mb-4 opacity-50" />
+          <p className="text-base sm:text-lg font-medium">No requests found</p>
         </div>
       )}
     </PageShell>

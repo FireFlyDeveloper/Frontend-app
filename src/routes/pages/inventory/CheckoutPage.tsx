@@ -33,7 +33,7 @@ function LotRow({
       <Button
         size="sm"
         variant="outline"
-        className="h-7 px-2 shrink-0"
+        className="h-7 px-2 shrink-0 min-h-9 lg:min-h-7"
         disabled={lot.quantity_on_hand <= 0}
         onClick={() => onAdd(lot)}
       >
@@ -188,7 +188,7 @@ export function CheckoutPage() {
   if (!canCheckout) {
     return (
       <PageShell title="Request">
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+        <div className="flex flex-col items-center justify-center py-12 lg:py-20 text-muted-foreground">
           <ShoppingCart className="h-12 w-12 mb-4 opacity-50" />
           <p className="text-lg font-medium">Request not available</p>
           <p className="text-sm">You do not have permission to request items.</p>
@@ -199,19 +199,19 @@ export function CheckoutPage() {
 
   return (
     <PageShell title="Request" description="Select items or scan barcodes to request">
-      <Button variant="ghost" size="sm" className="mb-2" onClick={() => navigate('/inventory')}>
+      <Button variant="ghost" size="sm" className="w-full lg:w-auto mb-3 lg:mb-2 min-h-10 lg:min-h-8" onClick={() => navigate('/inventory')}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Inventory
       </Button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="lg:col-span-2 space-y-4">
           {/* Unified Barcode Scanner + Available Items */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Available Items</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 space-y-3">
+            <CardContent className="pt-0 space-y-2 md:space-y-3">
               <BarcodeScanner
                 onScan={handleScan}
                 isLoading={scanCode.isPending}
@@ -230,7 +230,7 @@ export function CheckoutPage() {
                   ))}
                 </div>
               ) : items && items.length > 0 ? (
-                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-[50vh] md:max-h-[500px] overflow-y-auto pr-1">
                   {items.map((item) => (
                     <ItemWithLots key={item.id} item={item} onAddLot={addLotToCart} />
                   ))}

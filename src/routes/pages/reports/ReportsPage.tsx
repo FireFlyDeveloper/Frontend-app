@@ -16,22 +16,26 @@ export function ReportsPage() {
       description="Generate and export system reports"
     >
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="inventory-movement">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Inventory Movement
+        <TabsList className="flex-wrap h-auto gap-1 sm:gap-0">
+          <TabsTrigger value="inventory-movement" className="text-xs sm:text-sm px-2 sm:px-3">
+            <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Inventory Movement</span>
+            <span className="inline xs:hidden">Movement</span>
           </TabsTrigger>
-          <TabsTrigger value="checkout-history">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Checkout History
+          <TabsTrigger value="checkout-history" className="text-xs sm:text-sm px-2 sm:px-3">
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Checkout History</span>
+            <span className="inline xs:hidden">Checkouts</span>
           </TabsTrigger>
-          <TabsTrigger value="missing-items">
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            Missing Items
+          <TabsTrigger value="missing-items" className="text-xs sm:text-sm px-2 sm:px-3">
+            <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Missing Items</span>
+            <span className="inline xs:hidden">Missing</span>
           </TabsTrigger>
-          <TabsTrigger value="device-health">
-            <Radio className="h-4 w-4 mr-2" />
-            Device Health
+          <TabsTrigger value="device-health" className="text-xs sm:text-sm px-2 sm:px-3">
+            <Radio className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Device Health</span>
+            <span className="inline xs:hidden">Devices</span>
           </TabsTrigger>
         </TabsList>
 
