@@ -13,6 +13,7 @@ import {
   X,
   ChevronUp,
   ChevronDown,
+  PartyPopper,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -351,14 +352,15 @@ function DesktopCartSidebar({
 
 // ── Step indicator ──────────────────────────────────────────────────
 
-function StepIndicator({ step }: { step: 'browse' | 'info' | 'review' }) {
+function StepIndicator({ step }: { step: 'browse' | 'info' | 'review' | 'submitted' }) {
   const steps = ['browse', 'info', 'review'] as const
   const labels = ['Browse', 'Info', 'Submit']
+  const currentIndex = steps.indexOf(step as typeof steps[number])
 
   return (
     <div className="flex items-center gap-1.5 mb-5 text-sm">
       {steps.map((s, i) => {
-        const completedIndex = steps.indexOf(step) > i
+        const completedIndex = currentIndex > i
         const active = step === s
         return (
           <div key={s} className="flex items-center gap-1.5">
@@ -392,7 +394,7 @@ function StepIndicator({ step }: { step: 'browse' | 'info' | 'review' }) {
 
 // ── Main page component ────────────────────────────────────────────
 
-type Step = 'browse' | 'info' | 'review'
+type Step = 'browse' | 'info' | 'review' | 'submitted'
 
 export function PublicBorrowPage() {
   const addToast = useUIStore((state) => state.addToast)
@@ -502,14 +504,7 @@ export function PublicBorrowPage() {
         lines: cart.map((c) => ({ lot_id: c.lot.id, quantity: c.quantity })),
       }),
     onSuccess: () => {
-      addToast({
-        message: 'Borrow request submitted for approval!',
-        type: 'success',
-      })
-      setCart([])
-      setStep('browse')
-      setMobileCartOpen(false)
-      setStudentInfo({ srcode: '', email: '', name: '', course: '' })
+      setStep('submitted')
     },
     onError: (err: any) => {
       addToast({
@@ -532,10 +527,10 @@ export function PublicBorrowPage() {
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
           <div className="mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-              Borrow Items
+              Borrowing System
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
-              Browse available items and add them to your request
+              Browse available items and submit a borrow request
             </p>
           </div>
 
@@ -764,4 +759,62 @@ export function PublicBorrowPage() {
       </div>
     </div>
   )
+
+  // ── Step 4: Submitted (success) ──────────────────────────────────
+
+  if (step === 'submitted') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4 py-12 text-center">
+          <div className="animate-bounce mb-6">
+            <PartyPopper className="h-16 w-16 mx-auto text-primary" />
+          </div>
+
+          <h1 className="text-2xl font-bold tracking-tight mb-2">
+            Request Submitted! 🎉
+          </h1>
+
+          <p className="text-muted-foreground mb-2">
+            Thank you, <strong>{studentInfo.name}</strong>!
+          </p>
+
+          <p className="text-sm text-muted-foreground mb-6">
+            Your borrow request has been submitted for staff approval.
+            You will receive an email notification at{' '}
+            <strong>{studentInfo.email}</strong> once it's processed.
+          </p>
+
+          <div className="rounded-lg border bg-card p-4 mb-6 text-left text-sm space-y-1.5">
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">SR-Code</span>
+              <span className="font-medium text-right">{studentInfo.srcode}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">Items</span>
+              <span className="font-medium text-right">{cart.reduce((s, c) => s + c.quantity, 0)}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-muted-foreground shrink-0">Status</span>
+              <span className="font-medium text-green-600">Pending Approval</span>
+            </div>
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={() => {
+              setCart([])
+              setMobileCartOpen(false)
+              setStudentInfo({ srcode: '', email: '', name: '', course: '' })
+              setStep('browse')
+            }}
+          >
+            Submit Another Request
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Fallback (should never reach here)
+  return null
 }
