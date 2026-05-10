@@ -9,7 +9,7 @@ interface OnlyOfficeEditorProps {
   onClose: () => void
 }
 
-export function OnlyOfficeEditor({ docId, docName: _docName, onClose }: OnlyOfficeEditorProps) {
+export function OnlyOfficeEditor({ docId, onClose }: OnlyOfficeEditorProps) {
   const [config, setConfig] = useState<any>(null)
   const [documentServerUrl, setDocumentServerUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -40,20 +40,17 @@ export function OnlyOfficeEditor({ docId, docName: _docName, onClose }: OnlyOffi
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col">
-      {/* Floating close button */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-end px-3 py-2 bg-gradient-to-b from-black/10 to-transparent pointer-events-none">
-        <button
-          onClick={onClose}
-          className="pointer-events-auto rounded-full p-1.5 text-gray-600 hover:text-gray-900 hover:bg-black/5 transition-colors"
-          title="Close editor"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+    <div className="fixed inset-0 z-50 bg-white">
+      {/* Close button — tiny, in corner */}
+      <button
+        onClick={onClose}
+        className="absolute top-2 right-2 z-20 rounded-full p-1.5 bg-black/10 text-gray-500 hover:text-gray-800 hover:bg-black/20 transition-colors"
+      >
+        <X className="h-5 w-5" />
+      </button>
 
-      {/* Editor area — full bleed */}
-      <div className="flex-1 relative">
+      {/* Editor area */}
+      <div className="absolute inset-0">
         {config && documentServerUrl ? (
           <DocumentEditor
             id="onlyoffice-editor"
