@@ -3,6 +3,7 @@ import { FolderPlus, Search, Home, ChevronRight, FileText, Calendar, Clock, Hard
 import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
 import { FileList } from '@/components/documents/FileList'
+import { FileViewer } from '@/components/documents/FileViewer'
 import { OnlyOfficeEditor } from '@/components/documents/OnlyOfficeEditor'
 import { FileUploadZone } from '@/components/documents/FileUploadZone'
 import { PermissionEditor } from '@/components/documents/PermissionEditor'
@@ -31,6 +32,7 @@ export function DocumentManagerPage() {
   const [renameValue, setRenameValue] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [editingDocument, setEditingDocument] = useState<DocumentFile | null>(null)
+  const [previewDocument, setPreviewDocument] = useState<DocumentFile | null>(null)
 
   const { data: folders, isLoading: foldersLoading } = useFolders()
   const { data: documents, isLoading: documentsLoading } = useDocuments(selectedFolderId)
@@ -199,6 +201,7 @@ export function DocumentManagerPage() {
               selectedDocumentId={selectedDocumentId}
               onSelectDocument={setSelectedDocumentId}
               onEdit={(doc) => setEditingDocument(doc)}
+              onPreview={(doc) => setPreviewDocument(doc)}
               onRename={(doc) => {
                 setRenameValue(doc.name)
                 setShowRename(true)
@@ -357,6 +360,13 @@ export function DocumentManagerPage() {
           docId={editingDocument.id}
           docName={editingDocument.name}
           onClose={() => setEditingDocument(null)}
+        />
+      )}
+      {previewDocument && (
+        <FileViewer
+          open={!!previewDocument}
+          onOpenChange={(open) => { if (!open) setPreviewDocument(null) }}
+          document={previewDocument}
         />
       )}
     </PageShell>

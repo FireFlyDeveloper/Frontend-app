@@ -31,12 +31,13 @@ interface FileListProps {
   selectedDocumentId: string | null
   onSelectDocument: (id: string | null) => void
   onEdit?: (doc: DocumentFile) => void
+  onPreview?: (doc: DocumentFile) => void
   onRename?: (doc: DocumentFile) => void
   onDelete?: (doc: DocumentFile) => void
   onManagePermissions?: (doc: DocumentFile) => void
 }
 
-export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument, onEdit, onRename, onDelete, onManagePermissions }: FileListProps) {
+export function FileList({ documents, isLoading, selectedDocumentId, onSelectDocument, onEdit, onPreview, onRename, onDelete, onManagePermissions }: FileListProps) {
   const download = useDownloadDocument()
 
   if (isLoading) {
@@ -115,6 +116,20 @@ export function FileList({ documents, isLoading, selectedDocumentId, onSelectDoc
                 <Download className="h-4 w-4" />
               )}
             </Button>
+            {selectedDocumentId === doc.id && onPreview && !isOfficeDocument(doc.mime_type) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onPreview(doc)
+                }}
+                title="View"
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+            )}
             {selectedDocumentId === doc.id && onRename && doc.user_permission !== 'viewer' && (
               <Button
                 variant="ghost"
