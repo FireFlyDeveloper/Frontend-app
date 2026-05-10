@@ -1,4 +1,4 @@
-import { useEffect, useRef, ReactNode } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 interface PortalProps {
@@ -10,15 +10,14 @@ interface PortalProps {
  * bypassing any ancestor CSS that might break `fixed` positioning.
  */
 export function Portal({ children }: PortalProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [container, setContainer] = useState<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    // Create container on mount
     const el = document.createElement('div')
     el.style.position = 'relative'
     el.style.zIndex = '9999'
     document.body.appendChild(el)
-    containerRef.current = el
+    setContainer(el)
 
     // Prevent body scroll while portal is open
     const originalOverflow = document.body.style.overflow
@@ -27,11 +26,10 @@ export function Portal({ children }: PortalProps) {
     return () => {
       document.body.style.overflow = originalOverflow
       document.body.removeChild(el)
-      containerRef.current = null
     }
   }, [])
 
-  if (!containerRef.current) return null
+  if (!container) return null
 
-  return createPortal(children, containerRef.current)
+  return createPortal(children, container)
 }
