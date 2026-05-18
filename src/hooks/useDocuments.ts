@@ -15,6 +15,15 @@ export function useDocuments(folderId: string | null) {
   })
 }
 
+export function useAllDocuments() {
+  return useQuery({
+    queryKey: ['all-documents'],
+    queryFn: () => documentsApi.getAllDocuments().then((res) => res.data),
+    staleTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+  })
+}
+
 export function useUploadDocument() {
   const queryClient = useQueryClient()
   const addToast = useUIStore((state) => state.addToast)

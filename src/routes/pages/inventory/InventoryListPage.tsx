@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search, Filter, AlertCircle, Clock, Package, CheckCircle } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { ItemCard } from '@/components/inventory/ItemCard'
 import { ItemForm } from '@/components/inventory/ItemForm'
@@ -56,6 +56,53 @@ export function InventoryListPage() {
         )
       }
     >
+      {/* KPI Dashboard - Expiration Alerts */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground">Expiring Soon</p>
+              <p className="text-xl sm:text-2xl font-bold text-amber-600">12</p>
+            </div>
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Items expire in &lt;30 days</p>
+        </div>
+        
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground">Expired Items</p>
+              <p className="text-xl sm:text-2xl font-bold text-red-600">3</p>
+            </div>
+            <Clock className="h-5 w-5 text-red-600" />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Past expiration date</p>
+        </div>
+        
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground">Low Stock</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">8</p>
+            </div>
+            <Package className="h-5 w-5 text-blue-600" />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Below reorder point</p>
+        </div>
+        
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground">In Compliance</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">247</p>
+            </div>
+            <CheckCircle className="h-5 w-5 text-green-600" />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">All requirements met</p>
+        </div>
+      </div>
+
       {/* Filters - Grid layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <div className="relative sm:col-span-2 lg:col-span-2">

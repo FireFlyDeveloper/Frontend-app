@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FolderPlus, Search, Home, ChevronRight, FileText, Calendar, Clock, HardDrive, Hash, FolderOpen } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
@@ -18,7 +18,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { useFolders, useCreateFolder } from '@/hooks/useFolders'
-import { useDocuments, useSearchDocuments, useDeleteDocument, useRenameDocument } from '@/hooks/useDocuments'
+import { useDocuments, useAllDocuments, useSearchDocuments, useDeleteDocument, useRenameDocument } from '@/hooks/useDocuments'
 import { DocumentFile } from '@/types/document'
 import { formatFileSize, formatDate } from '@/lib/utils'
 
@@ -36,15 +36,21 @@ export function DocumentManagerPage() {
   const [previewDocument, setPreviewDocument] = useState<DocumentFile | null>(null)
 
   const { data: folders, isLoading: foldersLoading } = useFolders()
-  const { data: documents, isLoading: documentsLoading } = useDocuments(selectedFolderId)
+  const { data: folderDocuments } = useDocuments(selectedFolderId)
+  const { data: allDocuments } = useAllDocuments()
   const { data: searchResults, isLoading: searchLoading } = useSearchDocuments(searchQuery)
   const createFolder = useCreateFolder()
   const deleteDocument = useDeleteDocument()
   const renameDocument = useRenameDocument()
 
+  // Show all documents by default (when no folder selected and not searching)
   const isSearching = searchQuery.trim().length > 0
-  const displayDocuments = isSearching ? (searchResults || []) : (documents || [])
-  const displayLoading = isSearching ? searchLoading : documentsLoading
+  const displayDocuments = isSearching 
+    ? (searchResults || []) 
+    : selectedFolderId 
+      ? (folderDocuments || [])
+      : (allDocuments || [])
+  const displayLoading = isSearching ? searchLoading : (selectedFolderId ? false : false)
 
   const selectedFolder = folders?.find((f) => f.id === selectedFolderId)
   const selectedDocument = displayDocuments?.find((d) => d.id === selectedDocumentId)
@@ -166,6 +172,12 @@ export function DocumentManagerPage() {
               <Home className="h-3.5 w-3.5" />
               <span>Home</span>
             </button>
+            {!isSearching && !selectedFolder && (
+              <>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <span className="text-foreground font-medium">All Documents</span>
+              </>
+            )}
             {!isSearching && selectedFolder && (
               <>
                 <ChevronRight className="h-3.5 w-3.5" />
