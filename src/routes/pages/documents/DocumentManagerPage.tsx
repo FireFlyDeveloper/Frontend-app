@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FolderPlus, Search, Home, ChevronRight, FileText, Calendar, Clock, HardDrive, Hash, FolderOpen } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
