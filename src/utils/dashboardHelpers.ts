@@ -1,5 +1,5 @@
 // Dashboard updates for public borrower approved status
-import { CheckoutTransaction } from '@/types/inventory'
+import { CheckoutTransaction, CheckoutStatus } from '@/types/inventory'
 import { isPublicBorrowerRequest } from './requestFilters'
 
 export function updateDashboardMetrics(
@@ -26,7 +26,7 @@ export function updateDashboardMetrics(
     
     // Map public borrower 'open' to 'approved' for counting
     if (isPublic && request.status === 'open') {
-      displayStatus = 'approved'
+      displayStatus = 'approved' as CheckoutStatus
     }
     
     if (displayStatus in statusCounts) {

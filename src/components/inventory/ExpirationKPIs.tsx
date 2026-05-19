@@ -25,10 +25,10 @@ function ExpirationKPICard({ title, value, description, icon, variant, trend }: 
   };
 
   const badgeVariants = {
-    default: 'secondary',
+    default: 'default',
     destructive: 'destructive',
-    warning: 'warning',
-    success: 'success',
+    warning: 'secondary',
+    success: 'default',
   } as const;
 
   return (
@@ -349,7 +349,7 @@ export function InventoryExpirationKPIs({
                         </p>
                       </div>
                       <div className="text-right">
-                        <Badge variant={diffDays <= 0 ? "destructive" : "warning"}>
+                        <Badge variant={diffDays <= 0 ? "destructive" : "secondary"}>
                           {diffDays <= 0 ? 'EXPIRED' : `Expires in ${diffDays} days`}
                         </Badge>
                         <p className="text-sm text-muted-foreground mt-1">

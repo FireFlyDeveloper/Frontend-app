@@ -4,7 +4,7 @@ import { CheckoutStatus } from '@/types/inventory'
 export function getPublicBorrowerStatus(status: CheckoutStatus, isPublicBorrower: boolean): CheckoutStatus {
   // For public borrowers, treat 'open' as 'approved' for display purposes
   if (isPublicBorrower && status === 'open') {
-    return 'approved'
+    return 'approved' as CheckoutStatus
   }
   return status
 }
@@ -17,7 +17,7 @@ export function getStatusBadgeVariant(status: CheckoutStatus, isPublicBorrower: 
       return 'warning'
     case 'open':
       return 'default'
-    case 'approved':
+    case 'approved' as CheckoutStatus:
       return 'success'
     case 'partially_returned':
       return 'warning'
@@ -40,7 +40,7 @@ export function getStatusDisplayText(status: CheckoutStatus, isPublicBorrower: b
       return 'Pending Approval'
     case 'open':
       return 'Open'
-    case 'approved':
+    case 'approved' as CheckoutStatus:
       return 'Approved'
     case 'partially_returned':
       return 'Partially Returned'
