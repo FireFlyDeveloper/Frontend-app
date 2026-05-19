@@ -46,6 +46,7 @@ VITE_API_BASE_URL=http://localhost:3000
 
 - Authentication (login/logout, JWT with silent refresh)
 - Role-based access control
+- **Enhanced Document Manager** with All Folders Directory (folders expand inline showing contents)
 - Folder tree navigation with CRUD
 - File upload with drag-and-drop and progress
 - Document list with download

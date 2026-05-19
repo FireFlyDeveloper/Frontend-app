@@ -139,7 +139,7 @@ export function DocumentManagerPage() {
                 className="w-full sm:w-auto justify-center"
               >
                 <FolderOpen className="h-4 w-4 mr-2 shrink-0" />
-                <span>All Folders</span>
+                <span>All Folders Directory</span>
               </Button>
             )}
             {viewMode === 'all-folders' && (
@@ -153,7 +153,7 @@ export function DocumentManagerPage() {
                 className="w-full sm:w-auto justify-center"
               >
                 <FileText className="h-4 w-4 mr-2 shrink-0" />
-                <span>Browse Files</span>
+                <span>Browse Selected Folder</span>
               </Button>
             )}
             <Button
@@ -243,27 +243,27 @@ export function DocumentManagerPage() {
           {!isSearching && <FileUploadZone folderId={selectedFolderId} />}
 
           <div className="rounded-lg border bg-card p-3 lg:p-4">
-            <h3 className="text-sm font-semibold mb-3">
-              {isSearching ? 'Search Results' : 
-               viewMode === 'all-folders' && !selectedFolder ? 'All Folders' : 
-               viewMode === 'folder-browser' || selectedFolder ? 'Documents' : 'All Folders'}
-            </h3>
-            
-            {/* Show AllFoldersView when no folder is selected and not searching */}
-            {!isSearching && viewMode === 'all-folders' && !selectedFolder && folders && allDocuments && (
-              <AllFoldersView
-                folders={folders}
-                documents={allDocuments}
-                isLoading={foldersLoading}
-                onSelectFolder={(id) => {
-                  setSelectedFolderId(id)
-                  setViewMode('folder-browser')
-                }}
-                onSelectDocument={setSelectedDocumentId}
-                selectedFolderId={selectedFolderId}
-                selectedDocumentId={selectedDocumentId}
-              />
-            )}
+<h3 className="text-sm font-semibold mb-3">
+            {isSearching ? 'Search Results' : 
+               viewMode === 'all-folders' && !selectedFolder ? 'All Folders Directory' : 
+               viewMode === 'folder-browser' || selectedFolder ? 'Documents' : 'All Folders Directory'}
+          </h3>
+          
+          {/* Show AllFoldersView when no folder is selected and not searching */}
+          {!isSearching && viewMode === 'all-folders' && !selectedFolder && folders && allDocuments && (
+            <AllFoldersView
+              folders={folders}
+              documents={allDocuments}
+              isLoading={foldersLoading}
+              onSelectFolder={(id) => {
+                setSelectedFolderId(id)
+                setViewMode('folder-browser')
+              }}
+              onSelectDocument={setSelectedDocumentId}
+              selectedFolderId={selectedFolderId}
+              selectedDocumentId={selectedDocumentId}
+            />
+          )}
             
             {/* Show FileList when inside a folder or when searching */}
             {(isSearching || viewMode === 'folder-browser' || selectedFolder) && (
