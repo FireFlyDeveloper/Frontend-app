@@ -107,7 +107,7 @@ export function DocumentManagerPage() {
     renameDocument.mutate(
       {
         id: selectedDocumentId,
-        newName: renameValue.trim(),
+        name: renameValue.trim(),
       },
       {
         onSuccess: () => {
@@ -480,7 +480,8 @@ export function DocumentManagerPage() {
             </p>
             {selectedDocument && (
               <PermissionEditor
-                documentId={selectedDocument.id}
+                type="document"
+                id={selectedDocument.id}
                 onClose={() => setShowPermissions(false)}
               />
             )}
@@ -492,7 +493,8 @@ export function DocumentManagerPage() {
       {editingDocument && (
         <Portal>
           <OnlyOfficeEditor
-            document={editingDocument}
+            docId={editingDocument.id}
+            docName={editingDocument.name}
             onClose={() => setEditingDocument(null)}
           />
         </Portal>
@@ -502,8 +504,9 @@ export function DocumentManagerPage() {
       {previewDocument && (
         <Portal>
           <FileViewer
+            open={!!previewDocument}
+            onOpenChange={() => setPreviewDocument(null)}
             document={previewDocument}
-            onClose={() => setPreviewDocument(null)}
           />
         </Portal>
       )}

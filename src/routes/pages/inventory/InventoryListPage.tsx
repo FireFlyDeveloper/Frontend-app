@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/stores/authStore'
 import { useItems, useCreateItem } from '@/hooks/useItems'
 import { useRooms } from '@/hooks/useBLE'
-import { Item, CreateItemInput, UpdateItemInput } from '@/types/inventory'
+import { CreateItemInput, UpdateItemInput } from '@/types/inventory'
 
 export function InventoryListPage() {
   const navigate = useNavigate()
