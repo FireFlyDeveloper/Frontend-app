@@ -27,7 +27,7 @@ export function AllFoldersView({
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   
   // Memoized computations for performance
-  const { rootFolders, rootDocuments, folderDocumentsMap, childFoldersMap } = useMemo(() => {
+  const { rootFolders, rootDocuments, folderDocumentsMap, childFoldersMap, totalFoldersCount, totalDocumentsCount } = useMemo(() => {
     const folderDocumentsMap = new Map<string, DocumentFile[]>()
     const childFoldersMap = new Map<string, FolderType[]>()
     
@@ -53,7 +53,11 @@ export function AllFoldersView({
     const rootFolders = folders.filter((f) => !f.parent_id)
     const rootDocuments = documents.filter((d) => !d.folder_id)
     
-    return { rootFolders, rootDocuments, folderDocumentsMap, childFoldersMap }
+    // Calculate totals for the virtual root (All Folders Directory)
+    const totalFoldersCount = folders.length
+    const totalDocumentsCount = documents.length
+    
+    return { rootFolders, rootDocuments, folderDocumentsMap, childFoldersMap, totalFoldersCount, totalDocumentsCount }
   }, [folders, documents])
 
   /**
@@ -266,8 +270,18 @@ export function AllFoldersView({
           All Folders Directory
         </h3>
         <p className="text-sm text-muted-foreground">
-          All accessible folders are automatically displayed. Click any folder to expand and view its contents.
+          Virtual root folder containing {totalFoldersCount} folders and {totalDocumentsCount} documents. All accessible content is automatically displayed.
         </p>
+        <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Folder className="h-3 w-3" />
+            <span>{totalFoldersCount} folders</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <FileText className="h-3 w-3" />
+            <span>{totalDocumentsCount} documents</span>
+          </span>
+        </div>
       </div>
 
       {/* Root documents section */}

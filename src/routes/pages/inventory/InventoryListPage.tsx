@@ -1,17 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Filter, AlertCircle, Clock, Package, CheckCircle } from 'lucide-react'
+import { Plus, Search, Filter } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { ItemCard } from '@/components/inventory/ItemCard'
 import { ItemForm } from '@/components/inventory/ItemForm'
+import { InventoryExpirationKPIs, InventoryItemWithExpiration } from '@/components/inventory/ExpirationKPIs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/stores/authStore'
 import { useItems, useCreateItem } from '@/hooks/useItems'
 import { useRooms } from '@/hooks/useBLE'
-import { CreateItemInput, UpdateItemInput } from '@/types/inventory'
+import { Item, CreateItemInput, UpdateItemInput } from '@/types/inventory'
 
 export function InventoryListPage() {
   const navigate = useNavigate()
@@ -22,6 +24,8 @@ export function InventoryListPage() {
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [roomFilter, setRoomFilter] = useState('')
+  const [expirationFilter, setExpirationFilter] = useState<'expired' | 'near-expiry' | 'safe' | 'all'>('all')
+  const [expirationThreshold, setExpirationThreshold] = useState<number>(7)
   const [showForm, setShowForm] = useState(false)
 
   const { data: items, isLoading } = useItems({
@@ -33,6 +37,37 @@ export function InventoryListPage() {
 
   const { data: rooms } = useRooms()
   const createItem = useCreateItem()
+
+  // Convert items to InventoryItemWithExpiration format
+  const itemsWithExpiration = useMemo((): InventoryItemWithExpiration[] => {
+    if (!items) return []
+    // For now, return items with empty lots array
+    // In a real implementation, we would fetch lots for each item
+    return items.map(item => ({
+      ...item,
+      lots: [], // Placeholder - would need to fetch lots from API
+      totalQuantity: 0 // Placeholder
+    }))
+  }, [items])
+
+  // Filter items based on expiration status
+  const filteredItems = useMemo(() => {
+    if (!items || expirationFilter === 'all') return items
+
+    // For now, return all items since we don't have real lot data
+    // In a real implementation, we would filter based on actual expiration dates
+    return items
+
+    // TODO: Implement actual expiration filtering when we have lot data
+    // This would involve checking each item's lots against expirationFilter
+  }, [items, expirationFilter, expirationThreshold])
+
+  const handleExpirationFilterChange = (filter: 'expired' | 'near-expiry' | 'safe' | 'all', days?: number) => {
+    setExpirationFilter(filter)
+    if (days) {
+      setExpirationThreshold(days)
+    }
+  }
 
   const handleCreate = (data: CreateItemInput | UpdateItemInput) => {
     createItem.mutate(data as CreateItemInput, {
@@ -56,52 +91,30 @@ export function InventoryListPage() {
         )
       }
     >
-      {/* KPI Dashboard - Expiration Alerts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <div className="rounded-lg border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Expiring Soon</p>
-              <p className="text-xl sm:text-2xl font-bold text-amber-600">12</p>
-            </div>
-            <AlertCircle className="h-5 w-5 text-amber-600" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Items expire in &lt;30 days</p>
+      {/* Expiration KPIs Dashboard */}
+      <InventoryExpirationKPIs
+        items={itemsWithExpiration}
+        isLoading={isLoading}
+        configurableThresholds={[7, 14, 30]}
+        onFilterChange={handleExpirationFilterChange}
+      />
+
+      {/* Critical Alert Badge */}
+      {itemsWithExpiration.length > 0 && (
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex-1" />
+          {expirationFilter !== 'all' && (
+            <Badge variant="destructive" className="px-3 py-1">
+              Filter: {expirationFilter === 'expired' ? 'Expired Items' : 
+                      expirationFilter === 'near-expiry' ? `Expiring within ${expirationThreshold} days` : 
+                      'Safe Items'}
+            </Badge>
+          )}
+          <Badge variant="secondary" className="px-3 py-1">
+            {filteredItems?.length || 0} items shown
+          </Badge>
         </div>
-        
-        <div className="rounded-lg border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Expired Items</p>
-              <p className="text-xl sm:text-2xl font-bold text-red-600">3</p>
-            </div>
-            <Clock className="h-5 w-5 text-red-600" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Past expiration date</p>
-        </div>
-        
-        <div className="rounded-lg border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Low Stock</p>
-              <p className="text-xl sm:text-2xl font-bold text-blue-600">8</p>
-            </div>
-            <Package className="h-5 w-5 text-blue-600" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Below reorder point</p>
-        </div>
-        
-        <div className="rounded-lg border bg-card p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">In Compliance</p>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">247</p>
-            </div>
-            <CheckCircle className="h-5 w-5 text-green-600" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">All requirements met</p>
-        </div>
-      </div>
+      )}
 
       {/* Filters - Grid layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -144,9 +157,9 @@ export function InventoryListPage() {
             <Skeleton key={i} className="h-24 sm:h-32" />
           ))}
         </div>
-      ) : items && items.length > 0 ? (
+      ) : filteredItems && filteredItems.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <ItemCard
               key={item.id}
               item={item}

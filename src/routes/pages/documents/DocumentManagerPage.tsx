@@ -57,6 +57,11 @@ export function DocumentManagerPage() {
   const displayLoading = isSearching ? searchLoading : (selectedFolderId ? false : false)
 
   const selectedFolder = folders?.find((f) => f.id === selectedFolderId)
+
+  // Check if we're in home directory (All Folders Directory)
+  const isHomeDirectory = !selectedFolderId && !isSearching && viewMode === 'all-folders'
+
+  // Get selected document for preview/details
   const selectedDocument = displayDocuments?.find((d) => d.id === selectedDocumentId)
 
   function mimeLabel(mime: string): string {
@@ -98,13 +103,16 @@ export function DocumentManagerPage() {
   }
 
   const handleRename = () => {
-    if (!selectedDocumentId || !renameValue.trim()) return
+    if (!renameValue.trim() || !selectedDocumentId) return
     renameDocument.mutate(
-      { id: selectedDocumentId, name: renameValue.trim() },
+      {
+        id: selectedDocumentId,
+        newName: renameValue.trim(),
+      },
       {
         onSuccess: () => {
-          setShowRename(false)
           setRenameValue('')
+          setShowRename(false)
         },
       }
     )
@@ -114,143 +122,150 @@ export function DocumentManagerPage() {
     if (!selectedDocumentId) return
     deleteDocument.mutate(selectedDocumentId, {
       onSuccess: () => {
-        setShowDeleteConfirm(false)
         setSelectedDocumentId(null)
+        setShowDeleteConfirm(false)
       },
     })
   }
 
+  // Enhanced folder selection that maintains appropriate view mode
+  const handleSelectFolder = (folderId: string | null) => {
+    if (folderId === null) {
+      // Going back to home directory (All Folders Directory)
+      setSelectedFolderId(null)
+      setSelectedDocumentId(null)
+      setViewMode('all-folders')
+    } else {
+      // Selecting a specific folder
+      setSelectedFolderId(folderId)
+      setSelectedDocumentId(null)
+      setViewMode('folder-browser')
+    }
+    setSearchQuery('')
+  }
+
+  // Enhanced home navigation
+  const navigateToHomeDirectory = () => {
+    setSelectedFolderId(null)
+    setSelectedDocumentId(null)
+    setSearchQuery('')
+    setViewMode('all-folders')
+  }
+
+  // Check if we should show AllFoldersView
+  const shouldShowAllFoldersView = isHomeDirectory && folders && allDocuments
+
   return (
-      <PageShell
-        title="Documents"
-        description="Manage your files and folders"
-        actions={
-          <div className="flex gap-2">
-            {viewMode === 'folder-browser' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedFolderId(null)
-                  setSelectedDocumentId(null)
-                  setViewMode('all-folders')
-                  setSearchQuery('')
-                }}
-                className="w-full sm:w-auto justify-center"
-              >
-                <FolderOpen className="h-4 w-4 mr-2 shrink-0" />
-                <span>All Folders Directory</span>
-              </Button>
-            )}
-            {viewMode === 'all-folders' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setViewMode('folder-browser')
-                }}
-                disabled={!selectedFolder}
-                className="w-full sm:w-auto justify-center"
-              >
-                <FileText className="h-4 w-4 mr-2 shrink-0" />
-                <span>Browse Selected Folder</span>
-              </Button>
-            )}
+    <PageShell
+      title="Documents"
+      description="Manage your files and folders"
+      actions={
+        <div className="flex gap-2">
+          {/* Show "All Folders Directory" button when in folder browser mode */}
+          {viewMode === 'folder-browser' && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowNewFolder(true)}
+              onClick={navigateToHomeDirectory}
               className="w-full sm:w-auto justify-center"
             >
-              <FolderPlus className="h-4 w-4 mr-2 shrink-0" />
-              <span>New Folder</span>
+              <FolderOpen className="h-4 w-4 mr-2 shrink-0" />
+              <span>All Folders Directory</span>
             </Button>
-          </div>
-        }
-      >
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
-        {/* Folder Tree */}
-        <div className="lg:col-span-1">
-          <div className="rounded-lg border bg-card p-3 lg:p-4">
-            <h3 className="text-sm font-semibold mb-3">Folders</h3>
-            {foldersLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-7 lg:h-8 bg-muted rounded animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <FolderTree
-                folders={folders || []}
-                selectedFolderId={selectedFolderId}
-                onSelectFolder={(id) => {
-                  setSelectedFolderId(id)
-                  setSelectedDocumentId(null)
-                  setSearchQuery('')
-                  setViewMode('folder-browser')
-                }}
-              />
-            )}
-          </div>
+          )}
+          
+          {/* Show "New Folder" button - always available */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowNewFolder(true)}
+            className="w-full sm:w-auto justify-center"
+          >
+            <FolderPlus className="h-4 w-4 mr-2 shrink-0" />
+            <span>New Folder</span>
+          </Button>
+        </div>
+      }
+    >
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+      {/* Folder Tree */}
+      <div className="lg:col-span-1">
+        <div className="rounded-lg border bg-card p-3 lg:p-4">
+          <h3 className="text-sm font-semibold mb-3">Folders</h3>
+          {foldersLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-7 lg:h-8 bg-muted rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <FolderTree
+              folders={folders || []}
+              selectedFolderId={selectedFolderId}
+              onSelectFolder={handleSelectFolder}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* File List */}
+      <div className="lg:col-span-3 space-y-4">
+        {/* Enhanced Breadcrumbs */}
+        <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+          <button
+            onClick={navigateToHomeDirectory}
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+          >
+            <Home className="h-3.5 w-3.5" />
+            <span>Home</span>
+          </button>
+          
+          {/* Show "All Folders Directory" when in home directory */}
+          {isHomeDirectory && !isSearching && (
+            <>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">All Folders Directory</span>
+            </>
+          )}
+          
+          {/* Show selected folder when in folder browser mode */}
+          {viewMode === 'folder-browser' && !isSearching && selectedFolder && (
+            <>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">{selectedFolder.name}</span>
+            </>
+          )}
+          
+          {/* Show search results when searching */}
+          {isSearching && (
+            <>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">Search Results</span>
+            </>
+          )}
+        </nav>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search documents..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
 
-        {/* File List */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-            <button
-              onClick={() => {
-                setSelectedFolderId(null)
-                setSelectedDocumentId(null)
-                setSearchQuery('')
-                setViewMode('all-folders')
-              }}
-              className="flex items-center gap-1 hover:text-foreground transition-colors"
-            >
-              <Home className="h-3.5 w-3.5" />
-              <span>Home</span>
-            </button>
-            {viewMode === 'folder-browser' && !isSearching && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5" />
-                <span className="text-foreground font-medium">{selectedFolder?.name || 'All Documents'}</span>
-              </>
-            )}
-            {!isSearching && viewMode === 'all-folders' && selectedFolder && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5" />
-                <span className="text-foreground font-medium">{selectedFolder.name}</span>
-              </>
-            )}
-            {isSearching && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5" />
-                <span className="text-foreground font-medium">Search Results</span>
-              </>
-            )}
-          </nav>
+        {!isSearching && <FileUploadZone folderId={selectedFolderId} />}
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search documents..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {!isSearching && <FileUploadZone folderId={selectedFolderId} />}
-
-          <div className="rounded-lg border bg-card p-3 lg:p-4">
-<h3 className="text-sm font-semibold mb-3">
+        <div className="rounded-lg border bg-card p-3 lg:p-4">
+          <h3 className="text-sm font-semibold mb-3">
             {isSearching ? 'Search Results' : 
-               viewMode === 'all-folders' && !selectedFolder ? 'All Folders Directory' : 
-               viewMode === 'folder-browser' || selectedFolder ? 'Documents' : 'All Folders Directory'}
+               isHomeDirectory ? 'All Folders Directory' : 
+               selectedFolder ? `${selectedFolder.name} Documents` : 'Documents'}
           </h3>
           
-          {/* Show AllFoldersView when no folder is selected and not searching */}
-          {!isSearching && viewMode === 'all-folders' && !selectedFolder && folders && allDocuments && (
+          {/* Enhanced: Show AllFoldersView in home directory (All Folders Directory) */}
+          {shouldShowAllFoldersView && (
             <AllFoldersView
               folders={folders}
               documents={allDocuments}
@@ -300,21 +315,61 @@ export function DocumentManagerPage() {
                   <span>{formatFileSize(selectedDocument.size_bytes)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Hash className="h-3.5 w-3.5 shrink-0" />
-                  <span>Version {selectedDocument.version}</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <FolderOpen className="h-3.5 w-3.5 shrink-0" />
-                  <span>{selectedFolder?.name || 'Root'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5 shrink-0" />
-                  <span>Created {formatDate(selectedDocument.created_at)}</span>
+                  <span>{formatDate(selectedDocument.created_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-3.5 w-3.5 shrink-0" />
-                  <span>Updated {formatDate(selectedDocument.updated_at)}</span>
+                  <span>{formatDate(selectedDocument.updated_at)}</span>
                 </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Hash className="h-3.5 w-3.5 shrink-0" />
+                  <span>Version {selectedDocument.version}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewDocument(selectedDocument)}
+                >
+                  Preview
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingDocument(selectedDocument)}
+                  disabled={selectedDocument.user_permission !== 'editor' && selectedDocument.user_permission !== 'manager'}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setRenameValue(selectedDocument.name)
+                    setShowRename(true)
+                  }}
+                  disabled={selectedDocument.user_permission !== 'editor' && selectedDocument.user_permission !== 'manager'}
+                >
+                  Rename
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={selectedDocument.user_permission !== 'manager'}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPermissions(true)}
+                  disabled={selectedDocument.user_permission !== 'manager'}
+                >
+                  Permissions
+                </Button>
               </div>
             </div>
           )}
@@ -327,47 +382,34 @@ export function DocumentManagerPage() {
           <DialogHeader>
             <DialogTitle>Create New Folder</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Folder Name</label>
+              <label htmlFor="folderName" className="block text-sm font-medium mb-1">
+                Folder Name
+              </label>
               <Input
+                id="folderName"
+                placeholder="Enter folder name"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Enter folder name"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCreateFolder()
-                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreateFolder()}
                 autoFocus
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedFolder
+                  ? `This folder will be created inside "${selectedFolder.name}"`
+                  : 'This folder will be created at the root level'}
+              </p>
             </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowNewFolder(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateFolder} disabled={!newFolderName.trim()}>
+                Create Folder
+              </Button>
+            </DialogFooter>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewFolder(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateFolder}
-              disabled={!newFolderName.trim() || createFolder.isPending}
-            >
-              {createFolder.isPending ? 'Creating...' : 'Create'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Permissions Dialog */}
-      <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Document Permissions</DialogTitle>
-          </DialogHeader>
-          {selectedDocumentId && (
-            <PermissionEditor
-              type="document"
-              id={selectedDocumentId}
-              onClose={() => setShowPermissions(false)}
-            />
-          )}
         </DialogContent>
       </Dialog>
 
@@ -377,72 +419,91 @@ export function DocumentManagerPage() {
           <DialogHeader>
             <DialogTitle>Rename Document</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">New Name</label>
+              <label htmlFor="renameInput" className="block text-sm font-medium mb-1">
+                New Name
+              </label>
               <Input
+                id="renameInput"
+                placeholder="Enter new name"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="Enter new name"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleRename()
-                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleRename()}
                 autoFocus
               />
             </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowRename(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleRename} disabled={!renameValue.trim()}>
+                Rename
+              </Button>
+            </DialogFooter>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRename(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleRename}
-              disabled={!renameValue.trim() || renameDocument.isPending}
-            >
-              {renameDocument.isPending ? 'Renaming...' : 'Rename'}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Document</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete <strong>{selectedDocument?.name}</strong>? This action cannot be undone.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteDocument.isPending}
-            >
-              {deleteDocument.isPending ? 'Deleting...' : 'Delete'}
-            </Button>
-          </DialogFooter>
+          <div className="space-y-4">
+            <p>
+              Are you sure you want to delete <strong>{selectedDocument?.name}</strong>? This action
+              cannot be undone.
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
+
+      {/* Permissions Dialog */}
+      <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Manage Permissions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Control who can access <strong>{selectedDocument?.name}</strong>
+            </p>
+            {selectedDocument && (
+              <PermissionEditor
+                documentId={selectedDocument.id}
+                onClose={() => setShowPermissions(false)}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Editor */}
       {editingDocument && (
         <Portal>
           <OnlyOfficeEditor
-            docId={editingDocument.id}
-            docName={editingDocument.name}
+            document={editingDocument}
             onClose={() => setEditingDocument(null)}
           />
         </Portal>
       )}
+
+      {/* Document Preview */}
       {previewDocument && (
         <Portal>
           <FileViewer
-            open={!!previewDocument}
-            onOpenChange={(open) => { if (!open) setPreviewDocument(null) }}
             document={previewDocument}
+            onClose={() => setPreviewDocument(null)}
           />
         </Portal>
       )}
