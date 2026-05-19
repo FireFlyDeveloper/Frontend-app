@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Folder, FolderOpen, ChevronRight, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Folder as FolderType, DocumentFile } from '@/types/document'
