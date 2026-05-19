@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FolderPlus, Search, Home, ChevronRight, FileText, Calendar, Clock, HardDrive, Hash, FolderOpen } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { FolderTree } from '@/components/documents/FolderTree'
+import { AllFoldersView } from '@/components/documents/AllFoldersView'
 import { FileList } from '@/components/documents/FileList'
 import { FileViewer } from '@/components/documents/FileViewer'
 import { OnlyOfficeEditor } from '@/components/documents/OnlyOfficeEditor'
@@ -35,6 +36,9 @@ export function DocumentManagerPage() {
   const [editingDocument, setEditingDocument] = useState<DocumentFile | null>(null)
   const [previewDocument, setPreviewDocument] = useState<DocumentFile | null>(null)
 
+  // New state for all folders view
+  const [viewMode, setViewMode] = useState<'all-folders' | 'folder-browser'>('all-folders')
+  
   const { data: folders, isLoading: foldersLoading } = useFolders()
   const { data: folderDocuments } = useDocuments(selectedFolderId)
   const { data: allDocuments } = useAllDocuments()
@@ -117,21 +121,53 @@ export function DocumentManagerPage() {
   }
 
   return (
-    <PageShell
-      title="Documents"
-      description="Manage your files and folders"
-      actions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowNewFolder(true)}
-          className="w-full sm:w-auto justify-center"
-        >
-          <FolderPlus className="h-4 w-4 mr-2 shrink-0" />
-          <span>New Folder</span>
-        </Button>
-      }
-    >
+      <PageShell
+        title="Documents"
+        description="Manage your files and folders"
+        actions={
+          <div className="flex gap-2">
+            {viewMode === 'folder-browser' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedFolderId(null)
+                  setSelectedDocumentId(null)
+                  setViewMode('all-folders')
+                  setSearchQuery('')
+                }}
+                className="w-full sm:w-auto justify-center"
+              >
+                <FolderOpen className="h-4 w-4 mr-2 shrink-0" />
+                <span>All Folders</span>
+              </Button>
+            )}
+            {viewMode === 'all-folders' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setViewMode('folder-browser')
+                }}
+                disabled={!selectedFolder}
+                className="w-full sm:w-auto justify-center"
+              >
+                <FileText className="h-4 w-4 mr-2 shrink-0" />
+                <span>Browse Files</span>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNewFolder(true)}
+              className="w-full sm:w-auto justify-center"
+            >
+              <FolderPlus className="h-4 w-4 mr-2 shrink-0" />
+              <span>New Folder</span>
+            </Button>
+          </div>
+        }
+      >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Folder Tree */}
         <div className="lg:col-span-1">
@@ -151,6 +187,7 @@ export function DocumentManagerPage() {
                   setSelectedFolderId(id)
                   setSelectedDocumentId(null)
                   setSearchQuery('')
+                  setViewMode('folder-browser')
                 }}
               />
             )}
@@ -166,19 +203,20 @@ export function DocumentManagerPage() {
                 setSelectedFolderId(null)
                 setSelectedDocumentId(null)
                 setSearchQuery('')
+                setViewMode('all-folders')
               }}
               className="flex items-center gap-1 hover:text-foreground transition-colors"
             >
               <Home className="h-3.5 w-3.5" />
               <span>Home</span>
             </button>
-            {!isSearching && !selectedFolder && (
+            {viewMode === 'folder-browser' && !isSearching && (
               <>
                 <ChevronRight className="h-3.5 w-3.5" />
-                <span className="text-foreground font-medium">All Documents</span>
+                <span className="text-foreground font-medium">{selectedFolder?.name || 'All Documents'}</span>
               </>
             )}
-            {!isSearching && selectedFolder && (
+            {!isSearching && viewMode === 'all-folders' && selectedFolder && (
               <>
                 <ChevronRight className="h-3.5 w-3.5" />
                 <span className="text-foreground font-medium">{selectedFolder.name}</span>
@@ -206,22 +244,44 @@ export function DocumentManagerPage() {
 
           <div className="rounded-lg border bg-card p-3 lg:p-4">
             <h3 className="text-sm font-semibold mb-3">
-              {isSearching ? 'Search Results' : 'Documents'}
+              {isSearching ? 'Search Results' : 
+               viewMode === 'all-folders' && !selectedFolder ? 'All Folders' : 
+               viewMode === 'folder-browser' || selectedFolder ? 'Documents' : 'All Folders'}
             </h3>
-            <FileList
-              documents={displayDocuments}
-              isLoading={displayLoading}
-              selectedDocumentId={selectedDocumentId}
-              onSelectDocument={setSelectedDocumentId}
-              onEdit={(doc) => setEditingDocument(doc)}
-              onPreview={(doc) => setPreviewDocument(doc)}
-              onRename={(doc) => {
-                setRenameValue(doc.name)
-                setShowRename(true)
-              }}
-              onDelete={() => setShowDeleteConfirm(true)}
-              onManagePermissions={() => setShowPermissions(true)}
-            />
+            
+            {/* Show AllFoldersView when no folder is selected and not searching */}
+            {!isSearching && viewMode === 'all-folders' && !selectedFolder && folders && allDocuments && (
+              <AllFoldersView
+                folders={folders}
+                documents={allDocuments}
+                isLoading={foldersLoading}
+                onSelectFolder={(id) => {
+                  setSelectedFolderId(id)
+                  setViewMode('folder-browser')
+                }}
+                onSelectDocument={setSelectedDocumentId}
+                selectedFolderId={selectedFolderId}
+                selectedDocumentId={selectedDocumentId}
+              />
+            )}
+            
+            {/* Show FileList when inside a folder or when searching */}
+            {(isSearching || viewMode === 'folder-browser' || selectedFolder) && (
+              <FileList
+                documents={displayDocuments}
+                isLoading={displayLoading}
+                selectedDocumentId={selectedDocumentId}
+                onSelectDocument={setSelectedDocumentId}
+                onEdit={(doc) => setEditingDocument(doc)}
+                onPreview={(doc) => setPreviewDocument(doc)}
+                onRename={(doc) => {
+                  setRenameValue(doc.name)
+                  setShowRename(true)
+                }}
+                onDelete={() => setShowDeleteConfirm(true)}
+                onManagePermissions={() => setShowPermissions(true)}
+              />
+            )}
           </div>
 
           {selectedDocumentId && selectedDocument && (

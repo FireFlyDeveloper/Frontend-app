@@ -1,12 +1,24 @@
-import { useState } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, RotateCcw, XCircle, Package, Clock, CheckCircle, AlertCircle, Hourglass, Ban, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { ArrowLeft, RotateCcw, XCircle, Package, Clock, CheckCircle, AlertCircle, Hourglass, Ban, ThumbsUp, ThumbsDown, MoreVertical } from 'lucide-react'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Select } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/stores/authStore'
 import { useCheckouts, useCheckout, useReturnCheckout, useCancelCheckout, useApproveCheckout, useRejectCheckout } from '@/hooks/useCheckout'
 import { CheckoutStatus, ReturnLine } from '@/types/inventory'
@@ -28,6 +40,8 @@ export function CheckoutHistoryPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string | null>(null)
   const [returnQuantities, setReturnQuantities] = useState<Record<string, number>>({})
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingReturnId, setPendingReturnId] = useState<string | null>(null)
 
   const { data: checkouts, isLoading } = useCheckouts({
     status: statusFilter || undefined,
@@ -39,7 +53,7 @@ export function CheckoutHistoryPage() {
   const approveCheckout = useApproveCheckout()
   const rejectCheckout = useRejectCheckout()
 
-  const handleReturn = (checkoutId: string) => {
+  const handleReturn = useCallback((checkoutId: string) => {
     if (!checkoutDetail) return
     const lines: ReturnLine[] = checkoutDetail.items
       .filter((item) => {
@@ -57,13 +71,57 @@ export function CheckoutHistoryPage() {
       onSuccess: () => {
         setReturnQuantities({})
         setSelectedCheckoutId(null)
+        setConfirmOpen(false)
+        setPendingReturnId(null)
       },
     })
-  }
+  }, [checkoutDetail, returnQuantities, returnCheckout])
 
   const canReturn = (status: CheckoutStatus) => status === 'open' || status === 'partially_returned'
   const canCancel = (status: CheckoutStatus) => status === 'open' || status === 'pending_approval'
   const canApprove = (status: CheckoutStatus) => status === 'pending_approval'
+
+  // Fix UI glitch: Debounce quantity updates
+  const handleQuantityChange = useCallback((itemId: string, value: string, max: number) => {
+    const numValue = Math.min(max, Math.max(0, Number(value) || 0))
+    setReturnQuantities((prev) => ({ ...prev, [itemId]: numValue }))
+  }, [])
+
+  // Return All handler
+  const handleReturnAll = useCallback(() => {
+    if (!checkoutDetail) return
+    const allQuantities: Record<string, number> = {}
+    checkoutDetail.items.forEach((item) => {
+      const remaining = item.quantity_out - item.quantity_returned
+      if (remaining > 0) {
+        allQuantities[item.id] = remaining
+      }
+    })
+    setReturnQuantities(allQuantities)
+  }, [checkoutDetail])
+
+  // Quick select handler
+  const handleQuickSelect = useCallback((type: 'all' | 'half' | 'none') => {
+    if (!checkoutDetail) return
+    const newQuantities: Record<string, number> = {}
+    checkoutDetail.items.forEach((item) => {
+      const remaining = item.quantity_out - item.quantity_returned
+      if (remaining > 0) {
+        switch (type) {
+          case 'all':
+            newQuantities[item.id] = remaining
+            break
+          case 'half':
+            newQuantities[item.id] = Math.floor(remaining / 2)
+            break
+          case 'none':
+            newQuantities[item.id] = 0
+            break
+        }
+      }
+    })
+    setReturnQuantities(newQuantities)
+  }, [checkoutDetail])
 
   function renderNotes(notes: string | null | undefined) {
     if (!notes) return null
@@ -223,7 +281,31 @@ export function CheckoutHistoryPage() {
                   {/* Return Panel */}
                   {isSelected && checkoutDetail && (
                     <div className="mt-4 border-t pt-4 space-y-2 sm:space-y-3">
-                      <h4 className="text-sm font-semibold">Select items to return</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold">Select items to return</h4>
+                        <div className="flex items-center gap-2">
+                          {/* Quick Select Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreVertical className="h-3 w-3 mr-1" />
+                                Quick Select
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleQuickSelect('all')}>
+                                Return All
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleQuickSelect('half')}>
+                                Return Half
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleQuickSelect('none')}>
+                                Clear All
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
                       {checkoutDetail.items.map((item) => {
                         const remaining = item.quantity_out - item.quantity_returned
                         if (remaining <= 0) return null
@@ -231,25 +313,20 @@ export function CheckoutHistoryPage() {
                         return (
                           <div key={item.id} className="flex items-center justify-between rounded-lg border p-2 sm:p-3">
                             <div>
-                              <p className="text-sm font-medium">{item.item_name}</p>
-                              <p className="text-xs text-muted-foreground">{item.lot_code}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Checked out: {item.quantity_out} · Already returned: {item.quantity_returned} · Remaining: {remaining}
-                              </p>
-                            </div>
                             <div className="flex items-center gap-2">
                               <input
                                 type="number"
                                 min={0}
                                 max={remaining}
                                 value={returnQty}
-                                onChange={(e) =>
-                                  setReturnQuantities((prev) => ({
-                                    ...prev,
-                                    [item.id]: Math.min(remaining, Math.max(0, Number(e.target.value))),
-                                  }))
-                                }
+                                onChange={(e) => handleQuantityChange(item.id, e.target.value, remaining)}
                                 className="w-14 h-7 sm:w-16 sm:h-8 rounded-md border border-input bg-background px-1 sm:px-2 text-xs sm:text-sm text-center"
+                                onKeyDown={(e) => {
+                                  // Prevent negative numbers with keyboard
+                                  if (e.key === '-' || e.key === 'e') {
+                                    e.preventDefault()
+                                  }
+                                }}
                               />
                             </div>
                           </div>
@@ -259,13 +336,43 @@ export function CheckoutHistoryPage() {
                         <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedCheckoutId(null); }}>
                           Cancel
                         </Button>
-                        <Button
-                          size="sm"
-                          onClick={(e) => { e.stopPropagation(); handleReturn(txn.id); }}
-                          disabled={returnCheckout.isPending || Object.values(returnQuantities).every((v) => v <= 0)}
-                        >
-                          {returnCheckout.isPending ? 'Processing...' : 'Confirm Return'}
-                        </Button>
+                        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              disabled={returnCheckout.isPending || Object.values(returnQuantities).every((v) => v <= 0)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setPendingReturnId(txn.id)
+                                setConfirmOpen(true)
+                              }}
+                            >
+                              {returnCheckout.isPending ? 'Processing...' : 'Confirm Return'}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirm Return</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to process this return? This action will update inventory quantities and cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => { setConfirmOpen(false); setPendingReturnId(null); }}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  if (pendingReturnId) {
+                                    handleReturn(pendingReturnId)
+                                  }
+                                }}
+                              >
+                                Confirm
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   )}
